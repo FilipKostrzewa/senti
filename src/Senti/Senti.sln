@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Senti.Web.Pages.Quotes", "S
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Senti.Web.Pages.News", "Senti.Web.Pages.News\Senti.Web.Pages.News.csproj", "{759FA4E7-1156-4E4D-B507-F46CAF125F4E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Senti.Azure.Functions", "Senti.Azure.Functions\Senti.Azure.Functions.csproj", "{76F37F28-054A-4BA9-89DA-86BB04C3FD09}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{759FA4E7-1156-4E4D-B507-F46CAF125F4E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{759FA4E7-1156-4E4D-B507-F46CAF125F4E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{759FA4E7-1156-4E4D-B507-F46CAF125F4E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{76F37F28-054A-4BA9-89DA-86BB04C3FD09}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{76F37F28-054A-4BA9-89DA-86BB04C3FD09}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{76F37F28-054A-4BA9-89DA-86BB04C3FD09}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{76F37F28-054A-4BA9-89DA-86BB04C3FD09}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
