@@ -15,7 +15,7 @@ namespace Senti.Azure.Functions.Schedulers
             _importNews = importNews;
         }
 
-        [Function(nameof(ImportRss))]
+        [Function(nameof(CreateNews))]
         public async Task Run([TimerTrigger("%Cron_CreateNews%")] TimerInfo myTimer)
         {
             _logger.LogInformation($"C# Timer trigger function executed at: {DateTime.Now}");
