@@ -14,6 +14,7 @@ public class LogToStorage
     {
         await _storageAdapter.Upload(
             StorageContainers.Logs, 
-            $"{DateTime.UtcNow:yyyy-MM-dd} - {source} - {message}.log", "");
+            $"{DateTime.UtcNow:yyMMdd HH:mm} {source} {message}", 
+            "");
     }
 }

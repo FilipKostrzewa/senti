@@ -8,6 +8,13 @@ public class StorageAdapter
 {
     BlobServiceClient _storageClient = new BlobServiceClient(Environment.GetEnvironmentVariable(Envars.Storage_ConnectionString));
 
+    public async Task<bool> Exists(string containerName, string fileName)
+    {
+        var containerClient = _storageClient.GetBlobContainerClient(containerName);
+        var blob = containerClient.GetBlobClient(fileName);
+        return await blob.ExistsAsync();
+    }
+
     public async Task<Stream?> Download(string containerName, string fileName)
     {
         var containerClient = _storageClient.GetBlobContainerClient(containerName);
