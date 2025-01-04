@@ -33,5 +33,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Senti.News.Core\Senti.News.Core.csproj" />
+    <ProjectReference Include="..\Senti.Shared.Adapters\Senti.Shared.Adapters.csproj" />
   </ItemGroup>
 </Project>

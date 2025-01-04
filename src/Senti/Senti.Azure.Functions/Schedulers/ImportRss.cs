@@ -4,19 +4,19 @@ using Core = Senti.News.Core.Schedulers;
 
 namespace Senti.Azure.Functions.Schedulers
 {
-    public class ImportNews
+    public class ImportRss
     {
         private readonly ILogger _logger;
-        private readonly Core.ImportNews _importNews;
+        private readonly Core.ImportRss _importNews;
 
-        public ImportNews(ILoggerFactory loggerFactory, Core.ImportNews importNews)
+        public ImportRss(ILoggerFactory loggerFactory, Core.ImportRss importNews)
         {
-            _logger = loggerFactory.CreateLogger<ImportNews>();
+            _logger = loggerFactory.CreateLogger<ImportRss>();
             _importNews = importNews;
         }
 
-        [Function(nameof(ImportNews))]
-        public async Task Run([TimerTrigger("%Cron_ImportNews%")] TimerInfo myTimer)
+        [Function(nameof(ImportRss))]
+        public async Task Run([TimerTrigger("%Cron_ImportRss%")] TimerInfo myTimer)
         {
             _logger.LogInformation($"C# Timer trigger function executed at: {DateTime.Now}");
             

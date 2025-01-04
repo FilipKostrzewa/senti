@@ -6,6 +6,6 @@ public static class NewsTypeRegister
 {
     public static void Register(this IServiceCollection services)
     {
-        services.AddTransient<ImportNews>();
+        services.AddTransient<ImportRss>();
     }
 }
