@@ -10,11 +10,11 @@ public class LogToStorage
         _storageAdapter = storageAdapter;
     }
 
-    public async Task Log(string source, string message)
+    public async Task Log(string source, string message, string innerMessage = "")
     {
         await _storageAdapter.Upload(
             StorageContainers.Logs, 
             $"{DateTime.UtcNow:yyMMdd HH:mm} {source} {message}", 
-            "");
+            innerMessage);
     }
 }

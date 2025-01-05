@@ -7,11 +7,12 @@
 		"Storage_ConnectionString": "",
 
 		"Cron_ImportRss": "* * * * *",
-		"Cron_CreateNews": "* * * 11 *",
+		"Cron_CreateNews": "* * * 5 *",
 
-		"Rss_List": "[\"Google\", \"Yahoo\"]",
+		"Rss_List": "[\"Google\", \"Yahoo\", \"SeekingAlpha\"]",
 		"Rss_Google": "https://news.google.com/rss/search?q={{stock}}",
-		"Rss_Yahoo": "https://finance.yahoo.com/rss/headline?s={{stock}}",
+		"Rss_Yahoo": "https://feeds.finance.yahoo.com/rss/2.0/headline?s={{stock}}",
+		"Rss_SeekingAlpha": "https://seekingalpha.com/api/sa/combined/{{stock}}",
 
 		"Stock_List": "[\"AAPL\", \"MSFT\", \"GOOGL\", \"NVDA\", \"AMZN\", \"TSLA\", \"MCD\"]"
 	}
