@@ -1,4 +1,5 @@
-﻿using Senti.Shared.Adapters.Storages;
+﻿using Senti.News.Core.Rss;
+using Senti.Shared.Adapters.Storages;
 using Senti.Shared.Models;
 namespace Senti.News.Core.Schedulers;
 public class ImportRss
@@ -35,8 +36,8 @@ public class ImportRss
 
     private async Task ImportRssProvider(string rss, string stock)
     {
-        var fileName = DailyFileNameFactory.Create(rss);
-        if (await _storageAdapter.Exists(StorageContainers.Rss, fileName) is false)
+        var fileName = RssFileNameFactory.Create(rss, stock);
+        if (await _storageAdapter.Exists(StorageContainers.Rss, fileName))
         {
             return;
         }
@@ -50,10 +51,8 @@ public class ImportRss
 
         string rssContent = await response.Content.ReadAsStringAsync();
 
-
         await _storageAdapter.Upload(StorageContainers.Rss, fileName, rssContent);
 
         await _logToStorage.Log(nameof(ImportRss), $"{rssContent.Length} chars");
-
     }
 }
