@@ -4,6 +4,7 @@
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
 #sensitive data
+local.settings.json
 
 # User-specific files
 *.rsuser
@@ -371,3 +372,4 @@ src/CollaborationHub.Azure.Functions/Properties/*Deploy.json
 
 # WebAssembly deploy
 src/CollaborationHub.App.Client/Properties/ServiceDependencies/*
+/src/Senti/Senti.Azure.Functions/local.settings.json
