@@ -1,0 +1,19 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated"
+  },
+
+  "Storage_ConnectionString": "",
+
+  "Cron_ImportRss": "0 */5 * * * *",
+  "Cron_CreateNews": "0 */5 * * * *",
+
+  "Rss_List": "['Google', 'Yahoo'']",
+  "Rss_Google": "https://news.google.com/rss/search?q={{stock}}",
+  "Rss_Yahoo": "https://finance.yahoo.com/rss/headline?s={{stock}}",
+
+	"Stock_List": "['AAPL', 'MSFT', 'GOOGL', 'NVDA', 'AMZN', 'TSLA', 'MCD']",
+
+}
