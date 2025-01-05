@@ -28,6 +28,8 @@ public class ImportRss
             foreach (var stock in stockList)
             {
                 await ImportRssProvider(rss, stock);
+
+                await Task.Delay(1000);
             }
         }
 
