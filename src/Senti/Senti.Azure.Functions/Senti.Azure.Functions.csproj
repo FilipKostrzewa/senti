@@ -4,7 +4,7 @@
     <AzureFunctionsVersion>v4</AzureFunctionsVersion>
     <OutputType>Exe</OutputType>
     <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
+    <Nullable>disable</Nullable>
     <UserSecretsId>b7113f7b-811a-4901-959a-ccf9fbbbea40</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>

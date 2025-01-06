@@ -7,12 +7,12 @@ namespace Senti.Azure.Functions.Schedulers
     public class CreateNews
     {
         private readonly ILogger _logger;
-        private readonly Core.ImportRss _importNews;
+        private readonly Core.CreateNews _createNews;
 
-        public CreateNews(ILoggerFactory loggerFactory, Core.ImportRss importNews)
+        public CreateNews(ILoggerFactory loggerFactory, Core.CreateNews createNews)
         {
             _logger = loggerFactory.CreateLogger<ImportRss>();
-            _importNews = importNews;
+            _createNews = createNews;
         }
 
         [Function(nameof(CreateNews))]
@@ -25,7 +25,7 @@ namespace Senti.Azure.Functions.Schedulers
                 _logger.LogInformation($"Next timer schedule at: {myTimer.ScheduleStatus.Next}");
             }
 
-            await _importNews.Run();
+            await _createNews.Run();
         }
     }
 }

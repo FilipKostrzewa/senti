@@ -5,9 +5,11 @@
 		"FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
 
 		"Storage_ConnectionString": "",
+		"OpenAI_ApiKey": "",
+		"AzureLanguageAI_Endpoint": "",
 
-		"Cron_ImportRss": "* * * * *",
-		"Cron_CreateNews": "* * * 5 *",
+		"Cron_ImportRss": "* * * 5 *",
+		"Cron_CreateNews": "* * * * *",
 
 		"Rss_List": "[\"Google\", \"Yahoo\", \"SeekingAlpha\"]",
 		"Rss_Google": "https://news.google.com/rss/search?q={{stock}}",

@@ -29,14 +29,14 @@ public class ImportRss
         {
             foreach (var stock in stockList)
             {
-                await ImportRssProvider(rss, stock);
+                await ImportRssForStock(rss, stock);
 
                 await Task.Delay(1000);
             }
         }
     }
 
-    private async Task ImportRssProvider(string rss, string stock)
+    private async Task ImportRssForStock(string rss, string stock)
     {
         var fileName = RssFileNameFactory.Create(rss, stock);
         if (await _storageAdapter.Exists(StorageContainers.Rss, fileName))
