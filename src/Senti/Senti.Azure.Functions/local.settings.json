@@ -6,7 +6,9 @@
 
 		"Storage_ConnectionString": "",
 		"OpenAI_ApiKey": "",
+
 		"AzureLanguageAI_Endpoint": "",
+		"AzureLanguageAI_Key": "",
 
 		"Cron_ImportRss": "* * * 5 *",
 		"Cron_CreateNews": "* * * * *",

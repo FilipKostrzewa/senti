@@ -5,6 +5,6 @@ public static class NewsFileNameFactory
 {
     public static string Create(string stock)
     {
-        return DailyFileNameFactory.Create($"{stock}", "xml");
+        return DailyFileNameFactory.Create($"{stock}", "json");
     }
 }

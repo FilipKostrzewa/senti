@@ -6,4 +6,5 @@ public static class Envars
     public const string Rss_List = nameof(Rss_List);
     public const string OpenAI_ApiKey = nameof(OpenAI_ApiKey);
     public const string AzureLanguageAI_Endpoint = nameof(AzureLanguageAI_Endpoint);
+    public const string AzureLanguageAI_Key = nameof(AzureLanguageAI_Key);
 }

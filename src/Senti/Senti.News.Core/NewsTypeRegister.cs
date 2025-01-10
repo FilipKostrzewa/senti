@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Senti.News.Core.Articles;
 using Senti.News.Core.Schedulers;
 
 namespace Senti.News.Core;
@@ -9,5 +10,6 @@ public static class NewsTypeRegister
         services.AddTransient<ImportRss>();
         services.AddTransient<CreateNews>();
         services.AddTransient<TextSentimentFactory>();
+        services.AddTransient<ArticleFactory>();
     }
 }

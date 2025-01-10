@@ -1,4 +1,5 @@
-﻿using Azure.AI.TextAnalytics;
+﻿using Azure;
+using Azure.AI.TextAnalytics;
 using Azure.Identity;
 using Senti.Shared.Models;
 
@@ -8,10 +9,12 @@ public class TextSentimentFactory
 
     public TextSentimentFactory()
     {
-        var credential = new DefaultAzureCredential();
         var endpoint = Environment.GetEnvironmentVariable(Envars.AzureLanguageAI_Endpoint);
+        var key = Environment.GetEnvironmentVariable(Envars.AzureLanguageAI_Key);
 
-        _client = new TextAnalyticsClient(new Uri(endpoint), credential);
+        Uri uri = new(endpoint);
+        AzureKeyCredential credential = new(key);
+        _client = new(uri, credential);
     }
 
     public async Task<SentimentConfidenceScores> Create(string text)

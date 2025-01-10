@@ -2,17 +2,21 @@
 using Senti.News.Core.Rss;
 using Senti.Shared.Adapters.Storages;
 using Senti.Shared.Models;
+using Senti.Shared.Models.News;
+using System.Text.Json;
 using System.Xml.Linq;
 namespace Senti.News.Core.Schedulers;
 public class CreateNews
 {
     private readonly LogToStorage _logToStorage;
     private readonly StorageAdapter _storageAdapter;
+    private readonly ArticleFactory _articleFactory;
 
-    public CreateNews(LogToStorage logToStorage, StorageAdapter storageAdapter)
+    public CreateNews(LogToStorage logToStorage, StorageAdapter storageAdapter, ArticleFactory articleFactory)
     {
         _logToStorage = logToStorage;
         _storageAdapter = storageAdapter;
+        _articleFactory = articleFactory;
     }
 
     public async Task Run()
@@ -37,26 +41,30 @@ public class CreateNews
 
         var rssListJson = Environment.GetEnvironmentVariable(nameof(Envars.Rss_List));
         var rssList = System.Text.Json.JsonSerializer.Deserialize<List<string>>(rssListJson);
+
+        var articles = new List<Article>();
+
         foreach (var rss in rssList)
         {
+            articles.AddRange(await CreateArticlesForRss(rss, stock));
         }
 
+        await _storageAdapter.Upload(
+            StorageContainers.News, 
+            fileName, 
+            JsonSerializer.Serialize(articles));
+
     }
 
-
-    static IEnumerable<(string Title, string Description, string Url)> ParseRssFeed(string rssContent)
+    private async Task<IEnumerable<Article>> CreateArticlesForRss(string rss, string stock)
     {
-        var xdoc = XDocument.Parse(rssContent);
-        var items = xdoc.Descendants("item")
-            .Select(item => (
-                Title: item.Element("title")?.Value,
-                Description: item.Element("description")?.Value,
-                Url: item.Element("link")?.Value
-            ));
+        var rssStream = await _storageAdapter.Download(
+            StorageContainers.Rss, 
+            RssFileNameFactory.Create(rss, stock));
 
-        return items;
+        var articles = await _articleFactory.Create(rssStream);
+
+        return articles;
     }
-
-
 
 }
