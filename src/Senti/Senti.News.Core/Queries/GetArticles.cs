@@ -23,10 +23,17 @@ public class GetArticles
             throw new ArgumentException("Stock not found");
         }
         var fileName = NewsFileNameFactory.Create(stock);
+
+        if (!await _storageAdapter.Exists(StorageContainers.News, fileName))
+        {
+            fileName = NewsFileNameFactory.CreateForYesterday(stock);
+        }
+
         if (!await _storageAdapter.Exists(StorageContainers.News, fileName))
         {
             throw new ArgumentException("News not found");
         }
+
         var newsJson = await _storageAdapter.Download(StorageContainers.News, fileName);
         var news = JsonSerializer.Deserialize<List<Article>>(newsJson);
 

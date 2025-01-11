@@ -2,68 +2,77 @@
 
 @using System.Collections
 @using System.ComponentModel.DataAnnotations
-@using Radzen
+@using System.Text.Json
+
 
 <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Center" Gap="0.5rem" class="rz-p-sm-12">
     <RadzenLabel Text="Select Value" Component="DropDownEnums" />
-    <RadzenDropDown Data="@(Enum.GetValues(typeof(ColorType)).Cast<Enum>())" @bind-Value=@color
-                    AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Style="width: 100%; max-width: 400px;" Name="DropDownEnums">
+
+    <RadzenDropDown 
+
+    TValue="string"
+    Data="@(stocks)" 
+    Value="@stock"
+    Change="@(async x => await OnStockChange(x))"
+
+    AllowClear="true" 
+    AllowFiltering="true" 
+    FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" 
+    Style="width: 100%; max-width: 400px;" 
+    Name="Stock">
+
     </RadzenDropDown>
 </RadzenStack>
 
-<RadzenCard Variant="Variant.Outlined" class="rz-my-4">
-    <RadzenStack Orientation="Orientation.Horizontal" Gap="0.5rem" AlignItems="AlignItems.Center">
-        <div>GridLines:</div>
-        <RadzenSelectBar @bind-Value="@GridLines" TextProperty="Text" ValueProperty="Value"
-                         Data="@(Enum.GetValues(typeof(Radzen.DataGridGridLines)).Cast<Radzen.DataGridGridLines>().Select(t => new { Text = $"{t}", Value = t }))" Size="ButtonSize.Small" />
-    </RadzenStack>
-</RadzenCard>
-
-<RadzenDataGrid Data="@articles" GridLines="@GridLines" AllowPaging="true" AllowSorting="true">
+<RadzenDataGrid 
+    Data="@articles" 
+    GridLines="@GridLines" 
+    AllowPaging="true" 
+    AllowSorting="true"
+    
+    AllowColumnResize="true">
+    
     <Columns>
-        <RadzenDataGridColumn Property="PublishDate" Title="Publish Date" />
+        <RadzenDataGridColumn Width="200px" Property="PublishDate" Title="Publish Date" />
         <RadzenDataGridColumn Property="Title" Title="Title" />
-        <RadzenDataGridColumn Property="SentimentPositive" Title="Sentiment" />
+        <RadzenDataGridColumn Width="100px" Property="SentimentPositive" Title="Positive" />
+        <RadzenDataGridColumn Width="100px" Property="SentimentNeutral" Title="Neutral" />
+        <RadzenDataGridColumn Width="100px" Property="SentimentNegative" Title="Negative" />
     </Columns>
 </RadzenDataGrid>
 
+
 @code {
 
-
-    ColorType? color = ColorType.Green;
-
-    public enum ColorType
-    {
-        Red,
-        Green,
-        Blue,
-        [Display(Description = "Almond Green")]
-        AlmondGreen,
-        [Display(Description = "Amber Gray")]
-        AmberGray,
-        [Display(Description = "Apple Blue... ")]
-        AppleBlueSeaGreen,
-        //[Display(Description = "Miss", ResourceType = typeof(ResourceFile)] localization example
-        [Display(Description = "Azure")]
-        AzureBlue
-    }
-
-
-    //----------------------------
-
     Radzen.DataGridGridLines GridLines = Radzen.DataGridGridLines.Default;
-
     IEnumerable<Article> articles;
+    string stock = "AAPL";
+    List<string> stocks = new List<string> { "AAPL", "MSFT", "GOOGL", "NVDA", "AMZN", "TSLA", "MCD" };
+
+    public async Task OnStockChange(object args)
+    {
+        stock = args.ToString();
+
+        var url = $"";
+        var httpClient = new HttpClient();
+        var response = await httpClient.GetStringAsync(url);
+
+        var options = new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true
+        };
+
+        var result = JsonSerializer.Deserialize<List<Article>>(response, options);
+        articles = result.OrderByDescending(x => x.PublishDate);
+    }
 
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
 
-        articles = new List<Article>
-        {   
-            // new Article { PublishDate = DateTime.Now, Title = "Article 1", SentimentPositive = 0.1 },
-            // new Article { PublishDate = DateTime.Now, Title = "Article 2", SentimentPositive = 0.9 },
-        };
+        articles = new List<Article>();
+
+        await OnStockChange(stock);
     }
 }
 

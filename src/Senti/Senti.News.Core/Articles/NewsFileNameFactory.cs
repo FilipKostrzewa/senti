@@ -7,4 +7,9 @@ public static class NewsFileNameFactory
     {
         return DailyFileNameFactory.Create($"{stock}", "json");
     }
+
+    public static string CreateForYesterday(string stock)
+    {
+        return DailyFileNameFactory.CreateForYesterday($"{stock}", "json");
+    }
 }

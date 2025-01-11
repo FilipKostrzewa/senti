@@ -1,14 +1,52 @@
-﻿
-<h1>TimeLine</h1>
-
-<RadzenButton Click="@ButtonClicked" Text="Hi"></RadzenButton>
-
-
-
+﻿@using System.Text.Json
+@using Senti.Shared.Models.News
+<RadzenTimeline>
+    <Items>
+        @foreach (var article in articles)
+        {
+            <RadzenTimelineItem>
+                <LabelContent>
+                    @article.Title
+                </LabelContent>
+                <ChildContent>
+                    <RadzenText TextStyle="TextStyle.Subtitle2" class="rz-m-0">@article.PublishDate.ToString("HH:mm - ddd dd MMM yyyy")</RadzenText>
+                    <RadzenLink Navigate="true" Href="@article.Url" Target="_blank" class="rz-mt-1">Link</RadzenLink>
+                </ChildContent>
+            </RadzenTimelineItem>
+        }
+    </Items>
+</RadzenTimeline>
 
 @code {
-  void ButtonClicked()
-  {
-    // Handle the Click event of RadzenButton
-  }
+
+    Radzen.DataGridGridLines GridLines = Radzen.DataGridGridLines.Default;
+    IEnumerable<Article> articles;
+    string stock = "AAPL";
+    List<string> stocks = new List<string> { "AAPL", "MSFT", "GOOGL", "NVDA", "AMZN", "TSLA", "MCD" };
+
+    public async Task OnStockChange(object args)
+    {
+        stock = args.ToString();
+
+        var url = $"";
+        var httpClient = new HttpClient();
+        var response = await httpClient.GetStringAsync(url);
+
+        var options = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            };
+
+        var result = JsonSerializer.Deserialize<List<Article>>(response, options);
+        articles = result.OrderByDescending(x => x.PublishDate);
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+
+        articles = new List<Article>();
+
+        await OnStockChange(stock);
+    }
 }
