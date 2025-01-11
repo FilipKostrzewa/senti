@@ -9,6 +9,18 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="9.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="9.0.0" PrivateAssets="all" />
+    <PackageReference Include="Radzen.Blazor" Version="5.7.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Senti.Web.Pages.News\Senti.Web.Pages.News.csproj" />
+    <ProjectReference Include="..\Senti.Web.Pages.Quotes\Senti.Web.Pages.Quotes.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="Layout\MainLayout2.razor">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    </Content>
   </ItemGroup>
 
 </Project>

@@ -17,7 +17,7 @@ namespace Senti.Azure.Functions.Queries
             _getArticles = getArticles;
         }
 
-        [Function("GetArticles")]
+        [Function(nameof(GetArticles))]
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "get")] HttpRequest req)
         {
             _logger.LogInformation("C# HTTP trigger function processed a request.");
