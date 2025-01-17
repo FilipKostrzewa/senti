@@ -29,17 +29,32 @@ public class ArticleFactory
 
         foreach (var article in articles)
         {
-            var sentiment = await _textSentimentFactory.Create(article.Title);
-
-            article.SentimentPositive = sentiment.Positive;
-            article.SentimentNegative = sentiment.Negative;
-            article.SentimentNeutral = sentiment.Neutral;
-
             article.PublishDate = GetDate(article.PublishDateStr);
         }
 
         return articles;
     }
+
+    public async Task CreateSentiment(List<Article> articles)
+    {
+        foreach (var article in articles)
+        {
+            if (
+                article.SentimentPositive > 0.1 ||
+                article.SentimentNegative > 0.1 ||
+                article.SentimentNeutral > 0.1)
+            {
+                continue;
+            }
+
+            var sentiment = await _textSentimentFactory.Create(article.Title);
+
+            article.SentimentPositive = sentiment.Positive;
+            article.SentimentNegative = sentiment.Negative;
+            article.SentimentNeutral = sentiment.Neutral;
+        }
+    }
+
 
     public DateTime GetDate(string dateStr)
     {

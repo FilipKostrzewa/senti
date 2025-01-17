@@ -22,7 +22,7 @@ public class CreateNews
     public async Task Run()
     {
         var stockListJson = Environment.GetEnvironmentVariable(nameof(Envars.Stock_List));
-        var stockList = System.Text.Json.JsonSerializer.Deserialize<List<string>>(stockListJson);
+        var stockList = JsonSerializer.Deserialize<List<string>>(stockListJson);
 
         foreach (var stock in stockList)
         {
@@ -33,6 +33,7 @@ public class CreateNews
     private async Task CreateArticlesForStock(string stock)
     {
         var fileName = NewsFileNameFactory.Create(stock);
+        var prevFileName = NewsFileNameFactory.CreateForYesterday(stock);
 
         if (await _storageAdapter.Exists(StorageContainers.News, fileName))
         {
@@ -40,14 +41,28 @@ public class CreateNews
         }
 
         var rssListJson = Environment.GetEnvironmentVariable(nameof(Envars.Rss_List));
-        var rssList = System.Text.Json.JsonSerializer.Deserialize<List<string>>(rssListJson);
+        var rssList = JsonSerializer.Deserialize<List<string>>(rssListJson);
 
         var articles = new List<Article>();
+        if (await _storageAdapter.Exists(StorageContainers.News, prevFileName))
+        {
+            var articlesJson = await _storageAdapter.Download(
+                StorageContainers.News,
+                NewsFileNameFactory.CreateForYesterday(stock));
+            articles = JsonSerializer.Deserialize<List<Article>>(articlesJson);
+        }
 
         foreach (var rss in rssList)
         {
-            articles.AddRange(await CreateArticlesForRss(rss, stock));
+            var newArticles = await CreateArticlesForRss(rss, stock);
+            var newUniqueArticles = newArticles
+                .Where(a => !articles.Any(a2 => 
+                    a2.Title == a.Title && 
+                    a2.PublishDate == a.PublishDate));
+            articles.AddRange(newUniqueArticles);
         }
+
+        await _articleFactory.CreateSentiment(articles);
 
         await _storageAdapter.Upload(
             StorageContainers.News, 
