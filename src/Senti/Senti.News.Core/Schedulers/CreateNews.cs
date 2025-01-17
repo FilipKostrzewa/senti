@@ -58,7 +58,8 @@ public class CreateNews
             var newUniqueArticles = newArticles
                 .Where(a => !articles.Any(a2 => 
                     a2.Title == a.Title && 
-                    a2.PublishDate == a.PublishDate));
+                    a2.PublishDate == a.PublishDate))
+                .ToList();
             articles.AddRange(newUniqueArticles);
         }
 
