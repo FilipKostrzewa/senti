@@ -12,6 +12,5 @@ builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.
 builder.Services.AddRadzenComponents();
 
 var host = builder.Build();
-//host..UseWebRoot("wwwroot").UseStaticWebAssets();
     
 await host.RunAsync();

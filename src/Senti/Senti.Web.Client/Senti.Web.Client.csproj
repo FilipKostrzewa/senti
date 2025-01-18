@@ -9,18 +9,26 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="9.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="9.0.0" PrivateAssets="all" />
-    <PackageReference Include="Radzen.Blazor" Version="5.7.4" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Senti.Web.Pages.News\Senti.Web.Pages.News.csproj" />
-    <ProjectReference Include="..\Senti.Web.Pages.Quotes\Senti.Web.Pages.Quotes.csproj" />
+    <ProjectReference Include="..\Senti.Web.Shared\Senti.Web.Shared.csproj" />
+    <ProjectReference Include="..\Senti.Web.Views.Charts\Senti.Web.Views.Charts.csproj" />
+    <ProjectReference Include="..\Senti.Web.Views.Headlines\Senti.Web.Views.Headlines.csproj" />
+    <ProjectReference Include="..\Senti.Web.Views.Timelines\Senti.Web.Views.Timelines.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Update="Layout\MainLayout2.razor">
+    <Content Update="Layout\MainLayout.razor">
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
     </Content>
+    <Content Update="wwwroot\appsettings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="wwwroot\css\" />
   </ItemGroup>
 
 </Project>
