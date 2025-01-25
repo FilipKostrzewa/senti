@@ -1,9 +1,10 @@
-<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+﻿<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
 
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>disable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>92cdf085-b714-43ae-9d5c-a24d2c53605d</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
@@ -14,7 +15,10 @@
   <ItemGroup>
     <ProjectReference Include="..\Senti.Web.Shared\Senti.Web.Shared.csproj" />
     <ProjectReference Include="..\Senti.Web.Views.Charts\Senti.Web.Views.Charts.csproj" />
+    <ProjectReference Include="..\Senti.Web.Views.Colors\Senti.Web.Views.Colors.csproj" />
     <ProjectReference Include="..\Senti.Web.Views.Headlines\Senti.Web.Views.Headlines.csproj" />
+    <ProjectReference Include="..\Senti.Web.Views.PlusMinuses\Senti.Web.Views.PlusMinuses.csproj" />
+    <ProjectReference Include="..\Senti.Web.Views.Syslogs\Senti.Web.Views.Syslogs.csproj" />
     <ProjectReference Include="..\Senti.Web.Views.Timelines\Senti.Web.Views.Timelines.csproj" />
   </ItemGroup>
 

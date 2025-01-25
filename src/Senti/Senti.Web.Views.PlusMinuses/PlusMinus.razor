@@ -1,0 +1,142 @@
+﻿@using System.Text.Json
+@using Microsoft.Extensions.Configuration
+@using Radzen
+@using Radzen.Blazor
+@using Senti.Shared.Models.News
+@using Senti.Web.Shared
+
+@inject IConfiguration Configuration
+
+@page "/plusminus"
+
+
+<div>
+<RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Center" Gap="0.5rem" class="rz-p-sm-12">
+    <RadzenLabel Text="Select stock" Component="DropDownEnums" />
+
+    <RadzenDropDown 
+
+    TValue="string"
+    Data="@(stocks)" 
+    Value="@stock"
+    Change="@(async x => await OnStockChange(x))"
+
+    AllowFiltering="true" 
+    FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" 
+    Style="width: 100%; max-width: 400px;" 
+    Name="Stock">
+
+    </RadzenDropDown>
+</RadzenStack>
+
+<RadzenTimeline>
+    <Items>
+        @foreach (var article in articles)
+        {
+            <RadzenTimelineItem PointStyle="GetPointStyle(article)" >
+                <LabelContent>
+                    @article.Title
+                </LabelContent>
+                <ChildContent>
+                    <div class="horizontal-layout">
+
+                            @if (GetPositiveNumber(article) >= 50)
+                        {
+                            <RadzenButton Text=@GetPositiveText(article) ButtonStyle="ButtonStyle.Success" style="width: 100px" />
+                        }
+                            else if (GetPositiveNumber(article) >= 0)
+                        {
+                                <RadzenButton Shade="Shade.Light" Text=@GetPositiveText(article) ButtonStyle="ButtonStyle.Success" style="width: 100px" />
+                        }
+                            else if (GetPositiveNumber(article) >= -50)
+                        {
+                                <RadzenButton Shade="Shade.Light" Text=@GetPositiveText(article) ButtonStyle="ButtonStyle.Danger" style="width: 100px" />
+                        }
+                        else
+                        {
+                        <RadzenButton Text=@GetPositiveText(article) ButtonStyle="ButtonStyle.Danger" style="width: 100px"  />
+                        }
+
+                        <RadzenText TextStyle="TextStyle.Subtitle2" class="rz-m-0">@article.PublishDate.ToString("HH:mm - ddd dd MMM yyyy")</RadzenText>
+
+                        <RadzenLink Navigate="true" Href="@article.Url" Target="_blank" >
+                                <RadzenButton Text="Link" ButtonStyle="ButtonStyle.Info" />
+                        </RadzenLink>
+                    </div>
+                </ChildContent>
+            </RadzenTimelineItem>
+        }
+    </Items>
+</RadzenTimeline>
+</div>
+
+@code {
+
+
+
+    Radzen.DataGridGridLines GridLines = Radzen.DataGridGridLines.Default;
+    IEnumerable<Article> articles;
+    string stock = "AAPL";
+    List<string> stocks = new List<string> { "AAPL", "MSFT", "GOOGL", "NVDA", "AMZN", "TSLA", "MCD" };
+
+    public PointStyle GetPointStyle(Article article)
+    {
+        var positive = article.SentimentPositive - article.SentimentNegative;
+        var weight = 100 * (1 - article.SentimentNeutral);
+
+
+        if (positive >= 0)
+        {
+            return PointStyle.Success;
+        }
+        else
+        {
+            return PointStyle.Danger;
+        }
+    }
+
+    public int GetPositiveNumber(Article article)
+    {
+        var positive = article.SentimentPositive - article.SentimentNegative;
+        //var weight = 100 * (1 - article.SentimentNeutral/2);
+
+        return (int)(positive * 100);
+    }
+
+    public string GetPositiveText(Article article)
+    {
+        var positive = article.SentimentPositive - article.SentimentNegative;
+        //var weight = 100 * (1 - article.SentimentNeutral);
+
+        positive = Math.Round(positive, 2);
+        return positive.ToString();
+    }
+
+    public async Task OnStockChange(object args)
+    {
+        stock = args.ToString();
+
+        var url = Configuration[WebSettings.GetArticlesUrl] + $"&stock={stock}";
+
+        var httpClient = new HttpClient();
+        var response = await httpClient.GetStringAsync(url);
+
+        var options = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            };
+
+        var result = JsonSerializer.Deserialize<List<Article>>(response, options);
+        articles = result.OrderByDescending(x => x.PublishDate);
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+
+        articles = new List<Article>();
+
+        await OnStockChange(stock);
+    }
+}
+

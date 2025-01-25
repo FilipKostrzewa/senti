@@ -1,0 +1,11 @@
+﻿
+.horizontal-layout {
+	display: flex;
+	align-items: center;
+	gap: 1rem; /* Adjust spacing between items */
+}
+
+.width-100 {
+	width: 100px;
+}
+
