@@ -6,7 +6,6 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
-
   <ItemGroup>
     <SupportedPlatform Include="browser" />
   </ItemGroup>
@@ -15,7 +14,10 @@
     <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="9.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.0" />
+	<PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="9.0.0" />
+
     <PackageReference Include="Radzen.Blazor" Version="5.7.4" />
+	<PackageReference Include="Plotly.Blazor" Version="5.4.0" />
   </ItemGroup>
 
   <ItemGroup>

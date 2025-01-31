@@ -1,4 +1,4 @@
-﻿namespace Senti.Shared.Adapters.Storages;
+﻿namespace Senti.Shared.Models.News;
 public static class DailyFileNameFactory
 {
     public static string Create(string name, string extension = null)

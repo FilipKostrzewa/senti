@@ -1,4 +1,5 @@
 ﻿using Senti.Shared.Adapters.Storages;
+using Senti.Shared.Models.News;
 
 namespace Senti.News.Core.Rss;
 public static class RssFileNameFactory

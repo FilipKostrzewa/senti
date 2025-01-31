@@ -27,6 +27,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Senti.Web.Views.PlusMinuses
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Senti.Web.Views.Colors", "Senti.Web.Views.Colors\Senti.Web.Views.Colors.csproj", "{0A121954-4A36-45F9-AC4E-417C875E2ADD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Senti.Web.Views.PlotlyCharts", "Senti.Web.Views.PlotlyCharts\Senti.Web.Views.PlotlyCharts.csproj", "{56196372-E440-4878-A659-4412D9D04162}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Senti.Web.Views.PyCandle2", "Senti.Web.Views.PyCandle2\Senti.Web.Views.PyCandle2.csproj", "{261F359A-0879-4C0A-8046-1B76323BA261}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -81,6 +85,14 @@ Global
 		{0A121954-4A36-45F9-AC4E-417C875E2ADD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0A121954-4A36-45F9-AC4E-417C875E2ADD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0A121954-4A36-45F9-AC4E-417C875E2ADD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{56196372-E440-4878-A659-4412D9D04162}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{56196372-E440-4878-A659-4412D9D04162}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{56196372-E440-4878-A659-4412D9D04162}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{56196372-E440-4878-A659-4412D9D04162}.Release|Any CPU.Build.0 = Release|Any CPU
+		{261F359A-0879-4C0A-8046-1B76323BA261}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{261F359A-0879-4C0A-8046-1B76323BA261}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{261F359A-0879-4C0A-8046-1B76323BA261}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{261F359A-0879-4C0A-8046-1B76323BA261}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

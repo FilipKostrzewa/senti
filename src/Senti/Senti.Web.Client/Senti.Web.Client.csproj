@@ -17,7 +17,9 @@
     <ProjectReference Include="..\Senti.Web.Views.Charts\Senti.Web.Views.Charts.csproj" />
     <ProjectReference Include="..\Senti.Web.Views.Colors\Senti.Web.Views.Colors.csproj" />
     <ProjectReference Include="..\Senti.Web.Views.Headlines\Senti.Web.Views.Headlines.csproj" />
+    <ProjectReference Include="..\Senti.Web.Views.PlotlyCharts\Senti.Web.Views.PlotlyCharts.csproj" />
     <ProjectReference Include="..\Senti.Web.Views.PlusMinuses\Senti.Web.Views.PlusMinuses.csproj" />
+    <ProjectReference Include="..\Senti.Web.Views.PyCandle2\Senti.Web.Views.PyCandle2.csproj" />
     <ProjectReference Include="..\Senti.Web.Views.Syslogs\Senti.Web.Views.Syslogs.csproj" />
     <ProjectReference Include="..\Senti.Web.Views.Timelines\Senti.Web.Views.Timelines.csproj" />
   </ItemGroup>
