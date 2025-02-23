@@ -25,6 +25,7 @@ builder.Services.AddCors(options =>
 
 AdaptersTypeRegister.Register(builder.Services);   
 NewsTypeRegister.Register(builder.Services);   
+QuotesTypeRegister.Register(builder.Services);   
 
 
 builder.Build().Run();

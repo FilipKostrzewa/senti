@@ -1,10 +1,12 @@
-﻿namespace Senti.Shared.Models.News;
+﻿using Senti.Shared.Models.Infra;
+
+namespace Senti.Shared.Models.News;
 
 public static class NewsFileNameFactory
 {
     public static string Create(string stock)
     {
-        return DailyFileNameFactory.Create($"{stock}", "json");
+        return DailyFileNameFactory.CreateForToday($"{stock}", "json");
     }
 
     public static string CreateForYesterday(string stock)

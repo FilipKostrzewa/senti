@@ -31,6 +31,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Senti.Web.Views.PlotlyChart
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Senti.Web.Views.PyCandle2", "Senti.Web.Views.PyCandle2\Senti.Web.Views.PyCandle2.csproj", "{261F359A-0879-4C0A-8046-1B76323BA261}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Senti.Predictions.Core", "Senti.Predictions.Core\Senti.Predictions.Core.csproj", "{D07B1315-5BB3-4891-9E29-19434C929A65}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Senti.Quotes.Core", "Senti.Quotes.Core\Senti.Quotes.Core.csproj", "{4E1D7518-81BF-4DE2-BB72-9F758D505132}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -93,8 +97,19 @@ Global
 		{261F359A-0879-4C0A-8046-1B76323BA261}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{261F359A-0879-4C0A-8046-1B76323BA261}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{261F359A-0879-4C0A-8046-1B76323BA261}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D07B1315-5BB3-4891-9E29-19434C929A65}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D07B1315-5BB3-4891-9E29-19434C929A65}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D07B1315-5BB3-4891-9E29-19434C929A65}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D07B1315-5BB3-4891-9E29-19434C929A65}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4E1D7518-81BF-4DE2-BB72-9F758D505132}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4E1D7518-81BF-4DE2-BB72-9F758D505132}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4E1D7518-81BF-4DE2-BB72-9F758D505132}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4E1D7518-81BF-4DE2-BB72-9F758D505132}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {67E51CE9-7A7D-4868-9777-D2CABA03C3AD}
 	EndGlobalSection
 EndGlobal

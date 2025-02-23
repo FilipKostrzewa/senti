@@ -1,7 +1,19 @@
-﻿namespace Senti.Shared.Models.News;
+﻿namespace Senti.Shared.Models.Infra;
 public static class DailyFileNameFactory
 {
-    public static string Create(string name, string extension = null)
+    public static string Create(DateTime date, string name, string extension = null)
+    {
+        var fileName = $"{date:yyMMdd}-{name}";
+
+        if (!string.IsNullOrEmpty(extension))
+        {
+            fileName += $".{extension}";
+        }
+
+        return fileName;
+    }
+
+    public static string CreateForToday(string name, string extension = null)
     {
         var fileName = $"{DateTime.UtcNow:yyMMdd}-{name}";
 

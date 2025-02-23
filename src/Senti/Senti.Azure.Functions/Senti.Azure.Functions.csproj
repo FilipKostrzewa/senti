@@ -31,6 +31,8 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Senti.News.Core\Senti.News.Core.csproj" />
+    <ProjectReference Include="..\Senti.Predictions.Core\Senti.Predictions.Core.csproj" />
+    <ProjectReference Include="..\Senti.Quotes.Core\Senti.Quotes.Core.csproj" />
     <ProjectReference Include="..\Senti.Shared.Adapters\Senti.Shared.Adapters.csproj" />
   </ItemGroup>
 </Project>
