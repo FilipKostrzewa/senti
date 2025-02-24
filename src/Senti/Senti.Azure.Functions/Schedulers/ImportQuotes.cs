@@ -25,10 +25,15 @@ namespace Senti.Azure.Functions.Schedulers
                 _logger.LogInformation($"Next timer schedule at: {myTimer.ScheduleStatus.Next}");
             }
 
+            //for (int i = 1; i <= 12; i++)
+            //{
 
-            var date = new DateTime(2025, 1, 1, 0, 0, 0, kind: DateTimeKind.Utc);
+                //var date = new DateTime(2024, i, 1, 0, 0, 0, kind: DateTimeKind.Utc);
+                //await _importQuotes.Run(date, Core.TimePeriod.Month);
 
-            await _importQuotes.Run(date, Core.TimePeriod.Month);
+            //}
+
+
         }
     }
 }

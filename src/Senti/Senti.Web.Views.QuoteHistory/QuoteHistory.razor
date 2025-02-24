@@ -1,0 +1,245 @@
+@page "/quote-history"
+
+@using Microsoft.Extensions.Configuration
+@using Plotly.Blazor
+@using Plotly.Blazor.LayoutLib
+@using Plotly.Blazor.LayoutLib.XAxisLib
+@using Plotly.Blazor.LayoutLib.XAxisLib.RangeSelectorLib
+@using Plotly.Blazor.Traces
+@using Plotly.Blazor.Traces.CandlestickLib
+@using Radzen
+@using Radzen.Blazor
+@using Senti.Shared.Models.Quotes
+@using Senti.Web.Shared
+@using System.Text.Json
+@using Line = Plotly.Blazor.Traces.CandlestickLib.DecreasingLib.Line
+
+@inject IConfiguration Configuration
+
+<script src="_content/Plotly.Blazor/plotly-latest.min.js" type="text/javascript"></script>
+<script src="_content/Plotly.Blazor/plotly-interop.js" type="text/javascript"></script>
+
+<PlotlyChart style="min-height: 600px" @bind-Config="config" @bind-Layout="layout" @bind-Data="data" @ref="chart" />
+
+<RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Center" Gap="0.5rem" class="rz-p-sm-12">
+    <RadzenLabel Text="Select stock" Component="DropDownEnums" />
+
+    <RadzenDropDown 
+
+    TValue="string"
+    Data="@(stocks)" 
+    Value="@stock"
+    Change="@(async x => await OnStockChange(x))"
+
+    AllowFiltering="true" 
+    FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" 
+    Style="width: 100%; max-width: 400px;" 
+    Name="Stock">
+
+    </RadzenDropDown>
+</RadzenStack>
+
+
+@code
+{
+    // [CascadingParameter]
+    // private MudTheme Theme { get; set; }
+
+    private PlotlyChart chart;
+    private Config config;
+    private Layout layout;
+    private IList<ITrace> data;
+
+    string stock = "AAPL";
+    List<string> stocks = new List<string> { "AAPL", "MSFT", "GOOGL", "NVDA", "AMZN", "TSLA", "MCD" };
+
+    public async Task OnStockChange(object args)
+    {
+        stock = args.ToString();
+
+
+        var fileName = QuoteFileNameFactory.CreateForMonth(new DateTime(2025, 1, 1), stock);
+        var storageUrl = Configuration[WebSettings.StorageUrl];
+        var fileUrl = $"{storageUrl}/monthly-quotes/{fileName}";
+        var response = await new HttpClient().GetStreamAsync(fileUrl);
+
+        var options = new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true
+        };
+
+        var result = JsonSerializer.Deserialize<RawQuoteList>(response, options);
+        var raw = result.results;
+        raw = raw.Where(x => x.h > 0.1m).ToList();
+
+
+        data = new List<ITrace>
+        {
+            new Candlestick
+            {
+                X = //new List<object> { //new DateTime(2017, 1, 4), new DateTime(2017, 1, 5), 
+                    //DateTimeOffset.FromUnixTimeMilliseconds(5).UtcDateTime
+                    raw.Select(x => (object)DateTimeOffset.FromUnixTimeMilliseconds(x.t).UtcDateTime).ToList(),
+
+                //},
+                Close = raw.Select(x => (object)x.c).ToList(),
+
+                Decreasing = new Decreasing { Line = new Line { Color = "#ff0000" } },
+                High = raw.Select(x => (object)x.h).ToList(),
+
+                Increasing = new Increasing
+                {
+                    Line = new Plotly.Blazor.Traces.CandlestickLib.IncreasingLib.Line
+                    { /*Color = "rgba(31,119,180,1)"*/ Color = "#00cc00" }
+                },
+                Low = raw.Select(x => (object)x.l).ToList(),
+
+                Open = raw.Select(x => (object)x.o).ToList(),
+
+                XAxis = "x",
+                YAxis = "y"
+            }
+        };
+
+        await chart.NewPlot();
+
+        StateHasChanged();
+
+
+    }
+
+    /// <inheritdoc />
+    protected override async Task OnInitializedAsync()
+    {
+
+        var fileName = QuoteFileNameFactory.CreateForMonth(new DateTime(2025, 1, 1), stock);
+        var storageUrl = Configuration[WebSettings.StorageUrl];
+        var fileUrl = $"{storageUrl}/monthly-quotes/{fileName}";
+        var response = await new HttpClient().GetStreamAsync(fileUrl);
+
+        var options = new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true
+        };
+
+        var result = JsonSerializer.Deserialize<RawQuoteList>(response, options);
+        var raw = result.results;
+        //raw = raw.Where(x => x.h > 0.1m).ToList();
+
+
+        data = new List<ITrace>
+        {
+            new Candlestick
+            {
+                X = //new List<object> { //new DateTime(2017, 1, 4), new DateTime(2017, 1, 5), 
+                    //DateTimeOffset.FromUnixTimeMilliseconds(5).UtcDateTime
+                    raw
+                    .Select(x => (object)DateTimeOffset.FromUnixTimeMilliseconds(x.t).UtcDateTime)
+                    .ToList(),
+
+                //},
+                Close = raw.Select(x => (object)x.c).ToList(),
+
+                Decreasing = new Decreasing { Line = new Line { Color = "#ff0000" } },
+                High = raw.Select(x => (object)x.h).ToList(),
+
+                Increasing = new Increasing
+                {
+                    Line = new Plotly.Blazor.Traces.CandlestickLib.IncreasingLib.Line
+                    { /*Color = "rgba(31,119,180,1)"*/ Color = "#00cc00" }
+                },
+                Low = raw.Select(x => (object)x.l).ToList(),
+
+                Open = raw.Select(x => (object)x.o).ToList(),
+
+                XAxis = "x",
+                YAxis = "y"
+            }
+        };
+
+
+
+        config = new Config
+        {
+            // Responsive = true,
+            // AutoSizable = true,
+            // ScrollZoom = Plotly.Blazor.ConfigLib.ScrollZoomFlag.,
+            
+        };
+
+        layout = new Layout
+        {
+            // Title = new Plotly.Blazor.LayoutLib.Title
+            // {
+            //     Text = GetType().Name
+            // },
+
+            //PaperBgColor = Theme.PaletteDark.Surface.ToString(),
+            //PlotBgColor = Theme.PaletteDark.Surface.ToString(),
+            // Font = new Font
+            // {
+            //     //Color = Theme.PaletteDark.TextPrimary.ToString()
+            // },
+
+            // DragMode = DragModeEnum.Pan,
+            // Margin = new Margin
+            // {
+            //     R = 10,
+            //     T = 10,
+            //     B = 10,
+            //     L = 10
+            // },
+            // ShowLegend = true,
+            XAxis = new List<XAxis>
+            {
+                new()
+                {
+                    //AutoRange = AutoRangeEnum.True,
+                    //Domain = new List<object> { 0, 1 },
+                    //Range = new List<object> { "2025-01-01 09:00", "2025-01-05 23:00"},
+                    //FixedRange = new List<object> { "2025-01-01 09:00", "2025-01-05 23:00"},
+                    // RangeSlider = new RangeSlider
+                    // {
+                    //     AutoRange = true,
+                    //     //Range = new object[] { "2025-01-01 01:00", "2025-02-01 01:00" }
+                    // },
+                    // Title = new Plotly.Blazor.LayoutLib.XAxisLib.Title
+                    // {
+                    //     Text = "Date"
+                    // },
+
+                    RangeSlider = new RangeSlider
+                    {
+                        Visible = false,
+                    },
+
+
+                    Type = TypeEnum.Category,
+
+                    
+                }
+            },
+            YAxis = new List<YAxis>
+            {
+                // new()
+                // {
+                //     AutoRange = Plotly.Blazor.LayoutLib.YAxisLib.AutoRangeEnum.True,
+                //     Domain = new List<object> { 0, 1 },
+                //     //Range = new List<object> { 200, 500 },
+
+                //     //Type = Plotly.Blazor.LayoutLib.YAxisLib.TypeEnum.Linear,
+                //     Type = Plotly.Blazor.LayoutLib.YAxisLib.TypeEnum.Linear,
+
+                //     ShowGrid = true,
+
+
+                // }
+            }
+        };
+
+
+        
+
+        await base.OnInitializedAsync();
+    }
+}

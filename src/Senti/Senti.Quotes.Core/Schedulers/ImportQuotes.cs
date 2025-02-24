@@ -32,7 +32,7 @@ public class ImportQuotes
         {
             await ImportForStock(date, stock, period);
 
-            await Task.Delay(1000);
+            await Task.Delay(15000);
         }
     }
 
@@ -54,7 +54,7 @@ public class ImportQuotes
 
         if (await _storageAdapter.Exists(container, fileName))
         {
-            throw new Exception($"storage container does not exist: {container}");
+            return;
         }
 
         var range = period switch
