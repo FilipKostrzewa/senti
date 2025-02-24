@@ -7,17 +7,25 @@
 		"Storage_ConnectionString": "",
 		"OpenAI_ApiKey": "",
 
-		"AzureLanguageAI_Endpoint": "",
+		"AzureLanguageAI_Endpoint": "https://lang-senti-dev.cognitiveservices.azure.com/",
 		"AzureLanguageAI_Key": "",
 
-		"Cron_ImportRss": "* * * 5 *",
-		"Cron_CreateNews": "* * * * *",
+		"QuotesApi_Endpoint": "https://api.polygon.io/v2/aggs/ticker/{{stock}}/range/15/minute/{{from}}/{{to}}?adjusted=true&sort=asc&apiKey={{key}}",
+		"QuotesApi_Key": "",
+
+		"Cron_ImportRss": "* * * 1 *",
+		"Cron_CreateNews": "* * * 1 *",
+		"Cron_ImportQuotes": "* * * * *",
+		"Cron_ImportDailyQuotes": "* * * 1 *",
+		"Cron_ImportMonthlyQuotes": "* * * 1 *",
 
 		"Rss_List": "[\"Google\", \"Yahoo\", \"SeekingAlpha\"]",
 		"Rss_Google": "https://news.google.com/rss/search?q={{stock}}",
 		"Rss_Yahoo": "https://feeds.finance.yahoo.com/rss/2.0/headline?s={{stock}}",
 		"Rss_SeekingAlpha": "https://seekingalpha.com/api/sa/combined/{{stock}}",
 
-		"Stock_List": "[\"AAPL\", \"MSFT\", \"GOOGL\", \"NVDA\", \"AMZN\", \"TSLA\", \"MCD\"]"
+		"Stock_List": "[\"AAPL\", \"MSFT\", \"GOOGL\", \"NVDA\", \"AMZN\", \"TSLA\", \"MCD\"]",
+
+		"EOF": ""
 	}
 }
