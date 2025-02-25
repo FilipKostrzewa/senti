@@ -25,7 +25,7 @@ public partial class QuoteHistory
 {
     private bool _reloaded = false;
     private string _stock = "AAPL";
-    private DateTime pickedDate = new DateTime(2025, 02, 05, 0, 0, 0, kind: DateTimeKind.Utc);
+    private DateTime _pickedDate = new DateTime(2025, 02, 05, 0, 0, 0, kind: DateTimeKind.Utc);
 
     private PlotlyChart _chart;
     private Config _config;
@@ -33,6 +33,7 @@ public partial class QuoteHistory
 
     private Dictionary<string, List<Quote>> _quotes = new Dictionary<string, List<Quote>>();
     private IList<ITrace> _chartData = new List<ITrace>{ new Candlestick() };
+    private IList<Article> _newsData = new List<Article>();
 
     private List<string> _stocks = new List<string> { "AAPL", "MSFT", "GOOGL", "NVDA", "AMZN", "TSLA", "MCD" };
 
@@ -47,7 +48,7 @@ public partial class QuoteHistory
 
     public async Task OnDateChange(object args)
     {
-        pickedDate = (args as DateTime?) ?? 
+        _pickedDate = (args as DateTime?) ?? 
             new DateTime(2025, 02, 05, 0, 0, 0, kind: DateTimeKind.Utc);
 
         SetChartData();
@@ -60,6 +61,8 @@ public partial class QuoteHistory
         if (firstRender)
         {
             await SetAllQuotes();
+            await SetArticlesForAllStocks();
+            SetNewsData();
         }
 
         await base.OnAfterRenderAsync(firstRender);
@@ -82,7 +85,7 @@ public partial class QuoteHistory
             return;
 
         var quotes = _quotes[_stock]
-            .Where(x => x.Time > pickedDate.AddDays(-7) &&  x.Time < pickedDate.AddDays(1))
+            .Where(x => x.Time > _pickedDate.AddDays(-7) &&  x.Time < _pickedDate.AddDays(1))
             .ToList();
 
         var candlestick = new Candlestick
@@ -276,9 +279,17 @@ public partial class QuoteHistory
         }
     };
 
-    IEnumerable<Article> articles;
+    private Dictionary<string, List<Article>> _articles = new Dictionary<string, List<Article>>();
+
+    public async Task SetArticlesForAllStocks()
+    {
+        foreach (var stock in _stocks)
+        {
+            await SetArticles(stock);
+        }
+    }
     
-    public async Task SetArticle(string stock)
+    public async Task SetArticles(string stock)
     {
         var fileName = NewsFileNameFactory.Create(stock);
         var storageUrl = Configuration[WebSettings.StorageUrl];
@@ -291,6 +302,21 @@ public partial class QuoteHistory
             };
 
         var result = JsonSerializer.Deserialize<List<Article>>(response, options);
-        articles = result.OrderByDescending(x => x.PublishDate);
+        _articles[stock] = result.OrderByDescending(x => x.PublishDate).ToList();
+    }
+
+    public void SetNewsData()
+    {
+        if (!_articles.ContainsKey(_stock) ||
+            _articles[_stock].Count == 0)
+            return;
+
+        _newsData = _articles[_stock]
+            .Where(x =>
+                x.PublishDate > _pickedDate.AddDays(-7) &&
+                x.PublishDate < _pickedDate.AddDays(1))
+            .ToList();
+
+        StateHasChanged();
     }
 }

@@ -37,15 +37,13 @@
     <RadzenDatePicker 
         TValue="DateTime"
         Change="@(async x => await OnDateChange(x))" 
-        Value="@(pickedDate)"
+        Value="@(_pickedDate)"
         Name="RadzenDatePickerBindValue" 
         ShowCalendarWeek />
 </RadzenStack>
 
 <RadzenChart>
-    <RadzenLineSeries Smooth="true" Data="@revenue2024" CategoryProperty="Date" Title="2024" ValueProperty="Revenue" RenderingOrder="1">
-        <RadzenSeriesAnnotation Visible="@true" TItem="DataItem" Data="@revenue2024[7]" OffsetY="-16" Text="Acquisition" />
-        <RadzenSeriesAnnotation Visible="@true" TItem="DataItem" Data="@revenue2024[5]" OffsetY="-16" Text="IPO" Fill="#ff504d" />
+    <RadzenLineSeries Smooth="true" Data="@_newsData" CategoryProperty="PublishDate" Title="Title" ValueProperty="SentimentPositive" RenderingOrder="1">
         <RadzenMarkers MarkerType="MarkerType.Circle" />
     </RadzenLineSeries>
     <RadzenCategoryAxis Padding="20" />
