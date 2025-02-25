@@ -3,8 +3,10 @@ using Plotly.Blazor.LayoutLib;
 using Plotly.Blazor.LayoutLib.XAxisLib;
 using Plotly.Blazor.Traces;
 using Plotly.Blazor.Traces.CandlestickLib;
+using Senti.Shared.Models.News;
 using Senti.Shared.Models.Quotes;
 using Senti.Web.Shared;
+using System.Globalization;
 using System.Text.Json;
 using Line = Plotly.Blazor.Traces.CandlestickLib.DecreasingLib.Line;
 
@@ -184,82 +186,111 @@ public partial class QuoteHistory
 
     private void InitChart()
     {
-        _config = new Config
-        {
-            // Responsive = true,
-            // AutoSizable = true,
-            // ScrollZoom = Plotly.Blazor.ConfigLib.ScrollZoomFlag.,
-
-        };
-
+        _config = new Config { };
         _layout = new Layout
         {
-            // Title = new Plotly.Blazor.LayoutLib.Title
-            // {
-            //     Text = GetType().Name
-            // },
-
-            //PaperBgColor = Theme.PaletteDark.Surface.ToString(),
-            //PlotBgColor = Theme.PaletteDark.Surface.ToString(),
-            // Font = new Font
-            // {
-            //     //Color = Theme.PaletteDark.TextPrimary.ToString()
-            // },
-
-            // DragMode = DragModeEnum.Pan,
-            // Margin = new Margin
-            // {
-            //     R = 10,
-            //     T = 10,
-            //     B = 10,
-            //     L = 10
-            // },
-            // ShowLegend = true,
             XAxis = new List<XAxis>
-        {
-            new()
             {
-                //AutoRange = AutoRangeEnum.True,
-                //Domain = new List<object> { 0, 1 },
-                //Range = new List<object> { "2025-01-01 09:00", "2025-01-05 23:00"},
-                //FixedRange = new List<object> { "2025-01-01 09:00", "2025-01-05 23:00"},
-                // RangeSlider = new RangeSlider
-                // {
-                //     AutoRange = true,
-                //     //Range = new object[] { "2025-01-01 01:00", "2025-02-01 01:00" }
-                // },
-                // Title = new Plotly.Blazor.LayoutLib.XAxisLib.Title
-                // {
-                //     Text = "Date"
-                // },
-
-                RangeSlider = new RangeSlider
+                new()
                 {
-                    Visible = false,
-                },
-
-
-                Type = TypeEnum.Category,
-
-
-            }
-        },
-            YAxis = new List<YAxis>
-            {
-                // new()
-                // {
-                //     AutoRange = Plotly.Blazor.LayoutLib.YAxisLib.AutoRangeEnum.True,
-                //     Domain = new List<object> { 0, 1 },
-                //     //Range = new List<object> { 200, 500 },
-
-                //     //Type = Plotly.Blazor.LayoutLib.YAxisLib.TypeEnum.Linear,
-                //     Type = Plotly.Blazor.LayoutLib.YAxisLib.TypeEnum.Linear,
-
-                //     ShowGrid = true,
-
-
-                // }
-            }
+                    RangeSlider = new RangeSlider { Visible = false, },
+                    Type = TypeEnum.Category,
+                }
+            },
+            YAxis = new List<YAxis> { }
         };
+    }
+
+
+    class DataItem
+    {
+        public string Date { get; set; }
+        public double Revenue { get; set; }
+    }
+
+    string FormatAsUSD(object value)
+    {
+        return ((double)value).ToString("C0", CultureInfo.CreateSpecificCulture("en-US"));
+    }
+
+    DataItem[] revenue2024 = new DataItem[] {
+        new DataItem
+        {
+            Date = "Jan",
+            Revenue = 234000
+        },
+        new DataItem
+        {
+            Date = "Feb",
+            Revenue = 269000
+        },
+        new DataItem
+        {
+            Date = "Mar",
+            Revenue = 233000
+        },
+        new DataItem
+        {
+            Date = "Apr",
+            Revenue = 244000
+        },
+        new DataItem
+        {
+            Date = "May",
+            Revenue = 214000
+        },
+        new DataItem
+        {
+            Date = "Jun",
+            Revenue = 253000
+        },
+        new DataItem
+        {
+            Date = "Jul",
+            Revenue = 274000
+        },
+        new DataItem
+        {
+            Date = "Aug",
+            Revenue = 284000
+        },
+        new DataItem
+        {
+            Date = "Sept",
+            Revenue = 273000
+        },
+        new DataItem
+        {
+            Date = "Oct",
+            Revenue = 282000
+        },
+        new DataItem
+        {
+            Date = "Nov",
+            Revenue = 289000
+        },
+        new DataItem
+        {
+            Date = "Dec",
+            Revenue = 294000
+        }
+    };
+
+    IEnumerable<Article> articles;
+    
+    public async Task SetArticle(string stock)
+    {
+        var fileName = NewsFileNameFactory.Create(stock);
+        var storageUrl = Configuration[WebSettings.StorageUrl];
+        var fileUrl = $"{storageUrl}/news/{fileName}";
+        var response = await new HttpClient().GetStreamAsync(fileUrl);
+
+        var options = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            };
+
+        var result = JsonSerializer.Deserialize<List<Article>>(response, options);
+        articles = result.OrderByDescending(x => x.PublishDate);
     }
 }
