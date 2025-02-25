@@ -14,6 +14,7 @@
 @using System.Text.Json
 @using Line = Plotly.Blazor.Traces.CandlestickLib.DecreasingLib.Line
 @using System.Globalization
+@using Senti.Shared.Models.News;
 
 @inject IConfiguration Configuration
 @inject NavigationManager _navigationManager
@@ -25,31 +26,39 @@
 
     <RadzenLabel Text="Select stock" Component="DropDownEnums" />
     <RadzenDropDown 
-        TValue="string"
-        Data="@(_stocks)" 
-        Value="@_stock"
-        Change="@(async x => await OnStockChange(x))"
-        AllowFiltering="true" 
-        FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" 
-        Name="Stock"/>
+    TValue="string"
+    Data="@(_stocks)" 
+    Value="@_stock"
+    Change="@(async x => await OnStockChange(x))"
+    AllowFiltering="true" 
+    FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" 
+    Name="Stock"/>
 
     <RadzenLabel Text="Select Date" Component="RadzenDatePickerBindValue" />
     <RadzenDatePicker 
-        TValue="DateTime"
-        Change="@(async x => await OnDateChange(x))" 
-        Value="@(_pickedDate)"
-        Name="RadzenDatePickerBindValue" 
-        ShowCalendarWeek />
+    TValue="DateTime"
+    Change="@(async x => await OnDateChange(x))" 
+    Value="@(_pickedDate)"
+    Name="RadzenDatePickerBindValue" 
+    ShowCalendarWeek />
 </RadzenStack>
 
 <RadzenChart>
-    <RadzenLineSeries Smooth="true" Data="@_newsData" CategoryProperty="PublishDate" Title="Title" ValueProperty="SentimentPositive" RenderingOrder="1">
+    <RadzenLineSeries Smooth="true" Data="@_newsData" CategoryProperty="PublishDate" Title="Sentiment" ValueProperty="Diff" RenderingOrder="1" >
         <RadzenMarkers MarkerType="MarkerType.Circle" />
+        @foreach(var item in _newsData.Where(x => x.Diff > 0.3 && false))
+        {
+            <RadzenSeriesAnnotation Visible="@true" TItem="Article" Data="@item" OffsetX="50" Text="@item.Title" />
+        }
     </RadzenLineSeries>
     <RadzenCategoryAxis Padding="20" />
-    <RadzenValueAxis Formatter="@FormatAsUSD">
+
+
+    
+        
+        <RadzenValueAxis Formatter="@((o) => GetHeader(o))">
         <RadzenGridLines Visible="true" />
-        <RadzenAxisTitle Text="Revenue in USD" />
+        <RadzenAxisTitle Text="News Sentiment" />
     </RadzenValueAxis>
 </RadzenChart>
 

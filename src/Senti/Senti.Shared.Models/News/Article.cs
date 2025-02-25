@@ -12,4 +12,5 @@ public class Article
     public double SentimentNegative { get; set; }
     public double SentimentNeutral { get; set; }
     public string Version { get; set; } = "1.0";
+    public double Diff { get; set; }
 }
