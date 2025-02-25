@@ -15,6 +15,7 @@
 @using Line = Plotly.Blazor.Traces.CandlestickLib.DecreasingLib.Line
 
 @inject IConfiguration Configuration
+@inject NavigationManager _navigationManager
 
 <script src="_content/Plotly.Blazor/plotly-latest.min.js" type="text/javascript"></script>
 <script src="_content/Plotly.Blazor/plotly-interop.js" type="text/javascript"></script>
@@ -24,8 +25,8 @@
     <RadzenLabel Text="Select stock" Component="DropDownEnums" />
     <RadzenDropDown 
         TValue="string"
-        Data="@(stocks)" 
-        Value="@stock"
+        Data="@(_stocks)" 
+        Value="@_stock"
         Change="@(async x => await OnStockChange(x))"
         AllowFiltering="true" 
         FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" 

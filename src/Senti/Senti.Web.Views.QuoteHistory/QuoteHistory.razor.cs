@@ -21,26 +21,26 @@ public class Quote
 
 public partial class QuoteHistory
 {
-    string stock = "AAPL";
-    DateTime pickedDate = new DateTime(2025, 02, 05, 0, 0, 0, kind: DateTimeKind.Utc);
+    private bool _reloaded = false;
+    private string _stock = "AAPL";
+    private DateTime pickedDate = new DateTime(2025, 02, 05, 0, 0, 0, kind: DateTimeKind.Utc);
 
     private PlotlyChart _chart;
     private Config _config;
     private Layout _layout;
 
-    private List<Quote> _quotes = new List<Quote>();
+    private Dictionary<string, List<Quote>> _quotes = new Dictionary<string, List<Quote>>();
     private IList<ITrace> _chartData = new List<ITrace>{ new Candlestick() };
 
-    List<string> stocks = new List<string> { "AAPL", "MSFT", "GOOGL", "NVDA", "AMZN", "TSLA", "MCD" };
+    private List<string> _stocks = new List<string> { "AAPL", "MSFT", "GOOGL", "NVDA", "AMZN", "TSLA", "MCD" };
 
     public async Task OnStockChange(object args)
     {
-        stock = args?.ToString() ?? stocks[0];
+        _stock = args?.ToString() ?? _stocks[0];
 
         SetChartData();
+        await Task.Delay(500);
         await _chart.NewPlot();
-
-        StateHasChanged();
     }
 
     public async Task OnDateChange(object args)
@@ -49,16 +49,24 @@ public partial class QuoteHistory
             new DateTime(2025, 02, 05, 0, 0, 0, kind: DateTimeKind.Utc);
 
         SetChartData();
+        await Task.Delay(500);
         await _chart.NewPlot();
-
-        StateHasChanged();
     }
 
-    /// <inheritdoc />
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await SetAllQuotes();
+        }
+
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
     protected override async Task OnInitializedAsync()
     {
         InitChart();
-        await InitQuotes();
+        await SetQuotes(_stocks[0]);
         SetChartData();
 
         await base.OnInitializedAsync();
@@ -66,8 +74,13 @@ public partial class QuoteHistory
 
     private void SetChartData()
     {
-        var quotes = _quotes
-            .Where(x => x.Time > pickedDate &&  x.Time < pickedDate.AddDays(2))
+        if (!_quotes.ContainsKey(_stock) || 
+            _quotes[_stock] == null || 
+            _quotes[_stock].Count() == 0)
+            return;
+
+        var quotes = _quotes[_stock]
+            .Where(x => x.Time > pickedDate.AddDays(-7) &&  x.Time < pickedDate.AddDays(1))
             .ToList();
 
         var candlestick = new Candlestick
@@ -90,11 +103,24 @@ public partial class QuoteHistory
         _chartData = new List<ITrace> { candlestick };
     }
 
-    private async Task InitQuotes()
+    private async Task SetAllQuotes()
     {
-        var raw = await GetQuotes();
+        foreach (var stock in _stocks)
+        {
+            await SetQuotes(stock);
+        }
+    }
 
-        _quotes = raw.Select(x => new Quote
+    private async Task SetQuotes(string stock)
+    {
+        if (_quotes.ContainsKey(stock) && 
+            _quotes[stock] != null && 
+            _quotes[stock].Count() > 0)
+            return;
+
+        var raw = await GetQuotes(stock);
+
+        _quotes[stock] = raw.Select(x => new Quote
         {
             Time = DateTimeOffset.FromUnixTimeMilliseconds(x.t).UtcDateTime,
 
@@ -107,9 +133,9 @@ public partial class QuoteHistory
         }).ToList();
     }
 
-    private async Task<List<RawQuote>> GetQuotes()
+    private async Task<List<RawQuote>> GetQuotes(string stock)
     {
-        var quoteFileNames = GetQuoteFileNames();
+        var quoteFileNames = GetQuoteFileNames(stock);
         List<Task<RawQuoteList>> quoteTasks = new();
 
         quoteFileNames.ForEach(x =>
@@ -141,7 +167,7 @@ public partial class QuoteHistory
         return result;
     }
 
-    private List<string> GetQuoteFileNames()
+    private List<string> GetQuoteFileNames(string stock)
     {
         var today = DateTime.Today.Date;
         List<string> fileNames = new();
