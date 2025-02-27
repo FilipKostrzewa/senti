@@ -13,7 +13,6 @@ class Program
     {
         var mlContext = new MLContext();
 
-        // Sample Data for Stock Prices (N-Previous Days)
         var data = new List<ModelInput>
         {
             new ModelInput { Day = 1, Price = 100 },
@@ -26,7 +25,6 @@ class Program
 
         var dataView = mlContext.Data.LoadFromEnumerable(data);
 
-        // Define Time Series Pipeline with Forecasting
         var pipeline = mlContext.Forecasting.ForecastBySsa(
             outputColumnName: "ForecastedPrice",
             inputColumnName: "Price",
@@ -39,16 +37,12 @@ class Program
             confidenceUpperBoundColumn: "UpperBoundPrice"
         );
 
-        // Train the Model
         var transformer = pipeline.Fit(dataView);
 
-        // Create Forecast Engine
         var forecastEngine = transformer.CreateTimeSeriesEngine<ModelInput, ModelForecast>(mlContext);
 
-        // Make Predictions for Next N-Days
         var predictions = forecastEngine.Predict();
 
-        // Display Predictions
         for (int i = 0; i < predictions.ForecastedPrice.Length; i++)
         {
             Console.WriteLine($"Predicted Price for Day {data.Count + i + 1}: {predictions.ForecastedPrice[i]}");
