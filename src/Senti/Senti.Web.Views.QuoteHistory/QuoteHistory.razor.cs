@@ -176,7 +176,9 @@ public partial class QuoteHistory
 
     private List<string> GetQuoteFileNames(string stock)
     {
-        var today = DateTime.Today.Date;
+        // TODO
+        //var today = DateTime.Today.Date;
+        var today = new DateTime(2025, 02, 25);
         List<string> fileNames = new();
         List<DateTime> dates = [today, today.AddMonths(-1), today.AddMonths(-2)];
 
