@@ -6,7 +6,7 @@ using System.Text;
 namespace Senti.Shared.Adapters.Storages;
 public class StorageAdapter
 {
-    BlobServiceClient _storageClient = new BlobServiceClient(Environment.GetEnvironmentVariable(Envars.Storage_ConnectionString));
+    BlobServiceClient _storageClient = new BlobServiceClient(Environment.GetEnvironmentVariable(Envars.Senti_Storage_ConnectionString));
 
     public async Task<bool> Exists(string containerName, string fileName)
     {

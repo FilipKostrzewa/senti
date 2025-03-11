@@ -1,0 +1,6 @@
+@Senti.Quotes.Api_HostAddress = http://localhost:5026
+
+GET {{Senti.Quotes.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

@@ -1,20 +1,16 @@
-﻿using Polygon.Client;
-using Polygon.Client.Requests;
-using Senti.Shared.Adapters.Storages;
+﻿using Senti.Shared.Adapters.Storages;
 using Senti.Shared.Models;
-using Senti.Shared.Models.Quotes;
 
 namespace Senti.Quotes.Core.Schedulers;
-public enum TimePeriod
-{
-    Day = 1,
-    Month = 2,
-}
 public class ImportQuotes
 {
     private const string _customUserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36";
+    private const int _httpGetCountMax = 5;
+    private int _httpGetCount = 0;
+
     private readonly LogToStorage _logToStorage;
     private readonly StorageAdapter _storageAdapter;
+    private string _container = Environment.GetEnvironmentVariable(Envars.Senti_Container_Quotes5m);
 
     public ImportQuotes(LogToStorage logToStorage, StorageAdapter storageAdapter)
     {
@@ -22,88 +18,88 @@ public class ImportQuotes
         _storageAdapter = storageAdapter;
     }
 
-    public async Task Run(DateTime date, TimePeriod period)
+    public async Task Run()
     {
-        var stockListJson = Environment.GetEnvironmentVariable(nameof(Envars.Stock_List));
+        var stockListJson = Environment.GetEnvironmentVariable(Envars.Senti_Stocks);
         var stockList = System.Text.Json.JsonSerializer.Deserialize<List<string>>(stockListJson);
 
-        
-        foreach (var stock in stockList)
+        for (int i = 0; i < 12; i++)
         {
-            await ImportForStock(date, stock, period);
+            var utcNow = DateTime.UtcNow.AddMonths(-1 * i);
 
-            await Task.Delay(15000);
+            var date = new DateTime(
+                utcNow.Year, utcNow.Month, 1, 0, 0, 0, kind: DateTimeKind.Utc);
+
+            foreach (var stock in stockList)
+            {
+                await ImportStock(stock, date);
+
+                if (isHttpGetCountExceeded())
+                    break;
+            }
+
+            if (isHttpGetCountExceeded())
+                break;
         }
     }
 
-    private async Task ImportForStock(DateTime date, string stock, TimePeriod period)
+    private async Task ImportStock(string stock, DateTime date)
     {
-        var fileName = period switch
-        {
-            TimePeriod.Day => QuoteFileNameFactory.CreateForDay(date, stock),
-            TimePeriod.Month => QuoteFileNameFactory.CreateForMonth(date, stock),
-            _ => throw new Exception("unknown time period"),
-        };
+        var fileNamePrefix = $"{stock}-{date:yyMM}";
 
-        var container = period switch
-        {
-            TimePeriod.Day => StorageContainers.DailyQuotes,
-            TimePeriod.Month => StorageContainers.MonthlyQuotes,
-            _ => throw new Exception("unknown time period"),
-        };
+        var fileName1 = $"{fileNamePrefix}-1";
+        await ImportChunk(date, date.AddDays(10), stock, fileName1);
 
-        if (await _storageAdapter.Exists(container, fileName))
-        {
+        if (DateTime.UtcNow.Year == date.Year &&
+            DateTime.UtcNow.Month == date.Month &&
+            DateTime.UtcNow.Day < 11)
             return;
-        }
 
-        var range = period switch
-        {
-            TimePeriod.Day => ($"{date:yyyy-MM-dd}", $"{date:yyyy-MM-dd}"),
-            TimePeriod.Month => ($"{date:yyyy-MM}-01", $"{date.AddMonths(1):yyyy-MM}-01"),
-            _ => throw new Exception("unknown time period"),
-        };
+        var fileName2 = $"{fileNamePrefix}-2";
+        await ImportChunk(date.AddDays(10), date.AddDays(20), stock, fileName2);
 
-        var url = Environment.GetEnvironmentVariable(Envars.QuotesApi_Endpoint);
-        var key = Environment.GetEnvironmentVariable(Envars.QuotesApi_Key);
+        if (DateTime.UtcNow.Year == date.Year &&
+            DateTime.UtcNow.Month == date.Month &&
+            DateTime.UtcNow.Day < 21)
+            return;
 
+        var fileName3 = $"{fileNamePrefix}-3";
+        await ImportChunk(date.AddDays(20), date.AddMonths(1), stock, fileName3);
+    }
+
+    private async Task ImportChunk(DateTime from, DateTime to, string stock, string fileName)
+    {
+        if (isHttpGetCountExceeded()) 
+            return;
+
+        if (await _storageAdapter.Exists(container, fileName)) 
+            return;
+
+        var url = Environment.GetEnvironmentVariable(Envars.Senti_QuotesApi_Endpoint);
+        var key = Environment.GetEnvironmentVariable(Envars.Senti_QuotesApi_Key);
         url = url
             .Replace("{{key}}", key)
             .Replace("{{stock}}", stock)
-            .Replace("{{from}}", range.Item1)
-            .Replace("{{to}}", range.Item2);
+            .Replace("{{from}}", $"{from:yyyy-MM-dd}")
+            .Replace("{{to}}", $"{to:yyyy-MM-dd}");
 
-        await _logToStorage.Log(nameof(ImportQuotes), $"{stock} request", url);
-
+        _httpGetCount++;
         using HttpClient client = new HttpClient();
         client.DefaultRequestHeaders.Add("User-Agent", _customUserAgent);
-
         HttpResponseMessage response = await client.GetAsync(url);
         response.EnsureSuccessStatusCode();
 
         string content = await response.Content.ReadAsStringAsync();
 
         await _storageAdapter.Upload(container, fileName, content);
+        await _logToStorage.Log(nameof(ImportQuotes), $"{fileName} {content.Length} chars");
+    }
 
-        await _logToStorage.Log(nameof(ImportQuotes), $"{stock} {content.Length} chars");
+    private bool isHttpGetCountExceeded()
+    {
+        if (_httpGetCount >= _httpGetCountMax)
+            return true;
 
-        //var polygonClient = new PolygonClient(key);
-
-        //var request = new PolygonAggregateRequest
-        //{
-        //    Ticker = stock,
-        //    Timespan = "minute",
-        //    From = range.Item1,
-        //    To = range.Item2,
-        //};
-
-        //var response = await polygonClient.GetAggregates(request);
-        //var content = response.Results.ToList();
-
-        //var contentJson = System.Text.Json.JsonSerializer.Serialize(content);
-
-        //await _storageAdapter.Upload(container, fileName, contentJson);
-
-        //await _logToStorage.Log(nameof(ImportQuotes), $"{stock} {contentJson.Length} chars");
+        return false;
     }
 }

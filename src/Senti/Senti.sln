@@ -5,7 +5,7 @@ VisualStudioVersion = 17.12.35527.113
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Senti.Web.Client", "Senti.Web.Client\Senti.Web.Client.csproj", "{EDCE524E-C4AB-4D76-8800-BE8250B7CD0A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Senti.Azure.Functions", "Senti.Azure.Functions\Senti.Azure.Functions.csproj", "{76F37F28-054A-4BA9-89DA-86BB04C3FD09}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Senti.News.Func", "Senti.Azure.Functions\Senti.News.Func.csproj", "{76F37F28-054A-4BA9-89DA-86BB04C3FD09}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Senti.News.Core", "Senti.News.Core\Senti.News.Core.csproj", "{82943DAB-BA79-4855-9E7C-20E2993B2CD9}"
 EndProject
@@ -36,6 +36,14 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Senti.Quotes.Core", "Senti.Quotes.Core\Senti.Quotes.Core.csproj", "{4E1D7518-81BF-4DE2-BB72-9F758D505132}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Senti.Web.Views.QuoteHistory", "Senti.Web.Views.QuoteHistory\Senti.Web.Views.QuoteHistory.csproj", "{923ACE0E-72EE-4201-82B9-21E9335425AC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Senti.Web.DailyQuotes", "Senti.Web.DailyQuotes\Senti.Web.DailyQuotes.csproj", "{3F5DD8B2-9B55-4ABF-A4BC-5980F7582AF2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Senti.Quotes.Api", "Senti.Quotes.Api\Senti.Quotes.Api.csproj", "{5144805D-D01D-4247-9225-C55DCC87B7BE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Senti.Quotes.Func", "Senti.Quotes.Func\Senti.Quotes.Func.csproj", "{D3968247-5DE5-4C83-BB81-38F8BC1C745A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Senti.News.Api", "Senti.News.Api\Senti.News.Api.csproj", "{8CB816C9-F98F-49FB-A3CE-EFC746F36F73}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -111,6 +119,22 @@ Global
 		{923ACE0E-72EE-4201-82B9-21E9335425AC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{923ACE0E-72EE-4201-82B9-21E9335425AC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{923ACE0E-72EE-4201-82B9-21E9335425AC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3F5DD8B2-9B55-4ABF-A4BC-5980F7582AF2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3F5DD8B2-9B55-4ABF-A4BC-5980F7582AF2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3F5DD8B2-9B55-4ABF-A4BC-5980F7582AF2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3F5DD8B2-9B55-4ABF-A4BC-5980F7582AF2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5144805D-D01D-4247-9225-C55DCC87B7BE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5144805D-D01D-4247-9225-C55DCC87B7BE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5144805D-D01D-4247-9225-C55DCC87B7BE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5144805D-D01D-4247-9225-C55DCC87B7BE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D3968247-5DE5-4C83-BB81-38F8BC1C745A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D3968247-5DE5-4C83-BB81-38F8BC1C745A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D3968247-5DE5-4C83-BB81-38F8BC1C745A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D3968247-5DE5-4C83-BB81-38F8BC1C745A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8CB816C9-F98F-49FB-A3CE-EFC746F36F73}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8CB816C9-F98F-49FB-A3CE-EFC746F36F73}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8CB816C9-F98F-49FB-A3CE-EFC746F36F73}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8CB816C9-F98F-49FB-A3CE-EFC746F36F73}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

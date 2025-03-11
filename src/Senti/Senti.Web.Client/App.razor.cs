@@ -16,6 +16,7 @@ public partial class App
 
         typeof(Senti.Web.Views.PlotlyCharts.CandleSticks).Assembly,
         typeof(Senti.Web.Views.PyCandle2.Candle2).Assembly,
+
         typeof(Senti.Web.Views.QuoteHistory.QuoteHistory).Assembly,
     };
 }

@@ -1,0 +1,6 @@
+@Senti.News.Api_HostAddress = http://localhost:5155
+
+GET {{Senti.News.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
