@@ -11,6 +11,25 @@ builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.
 
 builder.Services.AddRadzenComponents();
 
+//builder.Services.addh
+//builder.Services.AddCors(options =>
+
+//{
+
+//    options.AddPolicy("AllowBlazorApp", builder =>
+
+//    {
+
+//        builder.WithOrigins("https://example.com") // the origin of your Blazor app
+
+//               .AllowAnyMethod()
+
+//               .AllowAnyHeader();
+
+//    });
+
+//});
+
 var host = builder.Build();
     
 await host.RunAsync();

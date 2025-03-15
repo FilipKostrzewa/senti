@@ -1,0 +1,186 @@
+@using System.Globalization
+@using Microsoft.Extensions.Configuration
+@using Radzen
+@using Radzen.Blazor
+@using Senti.Shared.Models
+@using Senti.Shared.Models.Quotes
+@using System.Text.Json
+
+@inject IConfiguration Configuration
+
+@page "/correlation"
+
+<div>
+    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Center" Gap="0.5rem" class="rz-p-sm-12">
+        <RadzenLabel Text="Select stock" Component="DropDownEnums" />
+
+        <RadzenDropDown 
+
+        TValue="string"
+        Data="@(stocks)" 
+        Value="@stock"
+        Change="@(async x => await OnStockChange(x))"
+
+        AllowFiltering="true" 
+        FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" 
+        Style="width: 100%; max-width: 400px;" 
+        Name="Stock">
+
+        </RadzenDropDown>
+    </RadzenStack>
+
+
+
+    <RadzenStack class="rz-p-0 rz-p-md-6 rz-p-lg-12">
+        <RadzenCard Variant="Variant.Outlined">
+            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.5rem" Wrap="FlexWrap.Wrap">
+                <RadzenCheckBox @bind-Value="@annotation" Name="annotation"></RadzenCheckBox>
+                <RadzenLabel Text="Annotation" Component="annotation" />
+            </RadzenStack>
+        </RadzenCard>
+
+        <RadzenChart>
+            <RadzenLineSeries Smooth="true" Data="@revenue2024" CategoryProperty="Date" Title="2024" ValueProperty="Revenue" RenderingOrder="1">
+                <RadzenSeriesAnnotation Visible="@annotation" TItem="DataItem" Data="@revenue2024[7]" OffsetY="-16" Text="Acquisition" />
+                <RadzenSeriesAnnotation Visible="@annotation" TItem="DataItem" Data="@revenue2024[5]" OffsetY="-16" Text="IPO" Fill="#ff504d" />
+                <RadzenMarkers MarkerType="MarkerType.Circle" />
+            </RadzenLineSeries>
+            <RadzenCategoryAxis Padding="20" />
+            <RadzenValueAxis Formatter="@FormatAsUSD">
+                <RadzenGridLines Visible="true" />
+                <RadzenAxisTitle Text="Revenue in USD" />
+            </RadzenValueAxis>
+        </RadzenChart>
+    </RadzenStack>
+
+</div>
+
+@code {
+
+    Radzen.DataGridGridLines GridLines = Radzen.DataGridGridLines.Default;
+    string stock = "AAPL";
+    List<string> stocks = new List<string> { "AAPL", "MSFT", "GOOGL", "NVDA", "AMZN", "TSLA", "MCD" };
+    List<RawQuote> quotes = new List<RawQuote>();
+
+    bool annotation = true;
+
+    public async Task OnStockChange(object args)
+    {
+        stock = args.ToString();
+        var url = Configuration[Envars.Senti_GetQuotesUrl];
+        url = url.Replace("{{stock}}", stock);
+        var response = await new HttpClient().GetStreamAsync(url);
+
+        var options = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            };
+
+        var result = JsonSerializer.Deserialize<List<RawQuote>>(response, options);
+        quotes = result
+        .OrderByDescending(x => x.t)
+        .ToList();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        //await OnStockChange(stock);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    class DataItem
+    {
+        public string Date { get; set; }
+        public double Revenue { get; set; }
+    }
+
+    string FormatAsUSD(object value)
+    {
+        return ((double)value).ToString("C0", CultureInfo.CreateSpecificCulture("en-US"));
+    }
+
+    DataItem[] revenue2024 = new DataItem[] {
+        new DataItem
+        {
+            Date = "Jan",
+            Revenue = 234000
+        },
+        new DataItem
+        {
+            Date = "Feb",
+            Revenue = 269000
+        },
+        new DataItem
+        {
+            Date = "Mar",
+            Revenue = 233000
+        },
+        new DataItem
+        {
+            Date = "Apr",
+            Revenue = 244000
+        },
+        new DataItem
+        {
+            Date = "May",
+            Revenue = 214000
+        },
+        new DataItem
+        {
+            Date = "Jun",
+            Revenue = 253000
+        },
+        new DataItem
+        {
+            Date = "Jul",
+            Revenue = 274000
+        },
+        new DataItem
+        {
+            Date = "Aug",
+            Revenue = 284000
+        },
+        new DataItem
+        {
+            Date = "Sept",
+            Revenue = 273000
+        },
+        new DataItem
+        {
+            Date = "Oct",
+            Revenue = 282000
+        },
+        new DataItem
+        {
+            Date = "Nov",
+            Revenue = 289000
+        },
+        new DataItem
+        {
+            Date = "Dec",
+            Revenue = 294000
+        }
+    };
+}

@@ -17,6 +17,7 @@
     <ProjectReference Include="..\Senti.Web.Shared\Senti.Web.Shared.csproj" />
     <ProjectReference Include="..\Senti.Web.Views.Charts\Senti.Web.Views.Charts.csproj" />
     <ProjectReference Include="..\Senti.Web.Views.Colors\Senti.Web.Views.Colors.csproj" />
+    <ProjectReference Include="..\Senti.Web.Views.Correlation\Senti.Web.Views.Correlation.csproj" />
     <ProjectReference Include="..\Senti.Web.Views.Headlines\Senti.Web.Views.Headlines.csproj" />
     <ProjectReference Include="..\Senti.Web.Views.PlotlyCharts\Senti.Web.Views.PlotlyCharts.csproj" />
     <ProjectReference Include="..\Senti.Web.Views.PlusMinuses\Senti.Web.Views.PlusMinuses.csproj" />

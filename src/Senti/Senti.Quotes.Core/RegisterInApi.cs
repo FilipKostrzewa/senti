@@ -5,8 +5,8 @@ namespace Senti.Quotes.Core;
 
 public static class RegisterInApi
 {
-    public void Register(this IServiceCollection service)
-    {
-        service.AddSingleton<aaaa>();
-    }
+    //public void Register(this IServiceCollection service)
+    //{
+    //    service.AddSingleton<aaaa>();
+    //}
 }

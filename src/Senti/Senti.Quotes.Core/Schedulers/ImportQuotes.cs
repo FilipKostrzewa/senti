@@ -72,7 +72,7 @@ public class ImportQuotes
         if (isHttpGetCountExceeded()) 
             return;
 
-        if (await _storageAdapter.Exists(container, fileName)) 
+        if (await _storageAdapter.Exists(_container, fileName)) 
             return;
 
         var url = Environment.GetEnvironmentVariable(Envars.Senti_QuotesApi_Endpoint);
@@ -91,7 +91,7 @@ public class ImportQuotes
 
         string content = await response.Content.ReadAsStringAsync();
 
-        await _storageAdapter.Upload(container, fileName, content);
+        await _storageAdapter.Upload(_container, fileName, content);
         await _logToStorage.Log(nameof(ImportQuotes), $"{fileName} {content.Length} chars");
     }
 

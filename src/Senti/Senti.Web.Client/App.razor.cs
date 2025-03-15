@@ -18,5 +18,6 @@ public partial class App
         typeof(Senti.Web.Views.PyCandle2.Candle2).Assembly,
 
         typeof(Senti.Web.Views.QuoteHistory.QuoteHistory).Assembly,
+        typeof(Senti.Web.Views.Correlation.Correlation).Assembly,
     };
 }

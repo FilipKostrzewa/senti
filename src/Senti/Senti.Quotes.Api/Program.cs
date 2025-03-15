@@ -1,4 +1,7 @@
 using Scalar.AspNetCore;
+using Senti.Quotes.Core.Cache;
+using Senti.Quotes.Core.Commands;
+using Senti.Shared.Adapters.Storages;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -6,12 +9,13 @@ var builder = WebApplication.CreateBuilder(args);
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
-builder.Services.AddSingleton<>
+builder.Services.AddSingleton<QuoteCacheContext>();
+builder.Services.AddTransient<QuoteCacheRepository>();
+builder.Services.AddTransient<GetQuotes>();
+builder.Services.AddTransient<StorageAdapter>();
 
 var app = builder.Build();
 
-
-// Configure the HTTP request pipeline.
 if (true || app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
@@ -21,25 +25,23 @@ if (true || app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
 
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast = Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast");
 
+app.MapGet("/quotes/{stock}", (GetQuotes getQuotes, string stock) =>
+{
+    return getQuotes.GetByStock(stock);
+});
+
+using (var scope = app.Services.CreateScope())
+{
+    var serviceProvider = scope.ServiceProvider;
+
+    var repository = serviceProvider.GetRequiredService<QuoteCacheRepository>();
+
+    // Use the repository
+    await repository.Init();
+    repository.InitData();
+}
 app.Run();
 
 internal record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
