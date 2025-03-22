@@ -47,7 +47,7 @@
 
 
 @code {
-    RawQuote[] _data = new RawQuote[] { };
+    QuoteMini[] _data = new QuoteMini[] { };
     private string _getQuotesUrl;
     CandlestickChart candleRef1;
     private string _stock = "AAPL";
@@ -57,8 +57,8 @@
     Radzen.DataGridGridLines GridLines = Radzen.DataGridGridLines.Default;
     string stock = "AAPL";
     List<string> stocks = new List<string> { "AAPL", "MSFT", "GOOGL", "NVDA", "AMZN", "TSLA", "MCD" };
-    List<RawQuote> quotes = new List<RawQuote>();
-    RawQuote[] quotesArr = [];
+    List<QuoteMini> quotes = new List<QuoteMini>();
+    QuoteMini[] quotesArr = [];
 
     bool annotation = true;
 
@@ -99,7 +99,7 @@
                 PropertyNameCaseInsensitive = true
             };
 
-        var result = JsonSerializer.Deserialize<List<RawQuote>>(response, options);
+        var result = JsonSerializer.Deserialize<List<QuoteMini>>(response, options);
 
         _data = result
         .OrderByDescending(x => x.t)

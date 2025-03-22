@@ -4,86 +4,97 @@
 @inherits ComponentBase
 @inject IJSRuntime JsRuntime
 
-@code{
-
-
-    [Parameter] public required RawQuote[] Quotes { get; set; }
+@code {
+    [Parameter] public required QuoteMini[] Quotes { get; set; }
     public ElementReference redrawButtonRef;
-
-
 
     public async Task Redraw()
     {
         await JsRuntime.InvokeVoidAsync("ClickButton", redrawButtonRef);
     }
-
-
 }
-<div>
 
-    <canvas id="candlestickChart" width="1600" height="400"></canvas>
+<div style="width: 100%;">
+    <canvas id="candlestickChart"></canvas>
 </div>
 
-    <script>
-        //drawChart();
-
-        function ClickButton(element)
-        {
-            if (element)
-            {
-                element.click();
-            }
+<script>
+    function ClickButton(element) {
+        if (element) {
+            element.click();
         }
+    }
 
-        function getRandomPrice(base) {
-            let open = base + Math.random() * 50 - 25;
-            let close = base + Math.random() * 50 - 25;
-            let high = Math.max(open, close) + Math.random() * 20;
-            let low = Math.min(open, close) - Math.random() * 20;
-            return { open, close, high, low };
+    function drawCandlestick(ctx, x, candleWidth, scaleY, yOffset, { open, close, high, low }) {
+        const candleX = x;
+        const candleColor = close >= open ? "green" : "red";
+
+        const highY = yOffset - high * scaleY;
+        const lowY = yOffset - low * scaleY;
+        const openY = yOffset - open * scaleY;
+        const closeY = yOffset - close * scaleY;
+
+        ctx.strokeStyle = "grey";
+        ctx.beginPath();
+        ctx.moveTo(candleX + candleWidth / 2, highY);
+        ctx.lineTo(candleX + candleWidth / 2, lowY);
+        ctx.stroke();
+
+        ctx.fillStyle = candleColor;
+        const rectY = Math.min(openY, closeY);
+        const rectHeight = Math.abs(openY - closeY);
+        ctx.fillRect(candleX, rectY, candleWidth, rectHeight);
+        ctx.strokeRect(candleX, rectY, candleWidth, rectHeight);
+    }
+
+    function drawChart() {
+        const hiddenElement = document.getElementById("quotesid");
+        const jsonData = hiddenElement.textContent.trim();
+        const arr = JSON.parse(jsonData);
+        const canvas = document.getElementById("candlestickChart");
+        const ctx = canvas.getContext("2d");
+
+        // Fit canvas to parent width
+        const parent = canvas.parentElement;
+        canvas.width = parent.clientWidth;
+        canvas.height = 400;
+
+        const width = canvas.width;
+        const height = canvas.height;
+
+        // Get price range
+        let minPrice = Math.min(...arr.map(x => x.l));
+        let maxPrice = Math.max(...arr.map(x => x.h));
+        let priceRange = maxPrice - minPrice;
+
+        const yPadding = 20;
+        const scaleY = (height - yPadding * 2) / priceRange;
+        const yOffset = height - yPadding + minPrice * scaleY;
+
+        // Candle layout
+        const candleCount = arr.length;
+        const candleSpacing = 4;
+        const totalSpacing = (candleCount - 1) * candleSpacing;
+        const candleWidth = Math.max((width - totalSpacing) / candleCount, 1);
+
+        ctx.clearRect(0, 0, width, height);
+
+        for (let i = 0; i < candleCount; i++) {
+            const q = arr[i];
+            const x = i * (candleWidth + candleSpacing) + 1;
+            drawCandlestick(ctx, x, candleWidth, scaleY, yOffset, {
+                open: q.o,
+                close: q.c,
+                high: q.h,
+                low: q.l
+            });
         }
+    }
 
-        function drawCandlestick(ctx, i, { open, close, high, low }) {
-
-            const candleWidth = 14;
-            const candleSpacing = 4;
-            const x = i * (candleWidth + candleSpacing) + 20;
-            const baseY = 300;
-
-
-            let color = close >= open ? "green" : "red";
-            ctx.strokeStyle = "grey";
-            ctx.beginPath();
-            ctx.moveTo(x + candleWidth / 2, baseY - high);
-            ctx.lineTo(x + candleWidth / 2, baseY - low);
-            ctx.stroke();
-
-            ctx.fillStyle = color;
-            ctx.fillRect(x, baseY - Math.max(open, close), candleWidth, Math.abs(open - close));
-            ctx.strokeRect(x, baseY - Math.max(open, close), candleWidth, Math.abs(open - close));
-        }
-
-        function drawChart() {
-            let hiddenElement = document.getElementById("quotesid");
-            let jsonData = hiddenElement.textContent.trim();
-            let arr = JSON.parse(jsonData);
-
-            let canvas = document.getElementById("candlestickChart");
-            let ctx = canvas.getContext("2d");
-
-            const candleCount = arr.length //100;
-
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            let basePrice = 200;
-            for (let i = 0; i < candleCount; i++) {
-                let prices = getRandomPrice(basePrice);
-                drawCandlestick(ctx, i, prices);
-                basePrice = prices.close;
-            }
-        }
-    </script>
+    window.addEventListener('resize', () => {
+        drawChart();
+    });
+</script>
 
 <input @ref="redrawButtonRef" id="redrawButton" type="button" value="clickme" onclick="drawChart();" hidden />
-
 <div id="quotesid" hidden>@(JsonSerializer.Serialize(Quotes))</div>
-

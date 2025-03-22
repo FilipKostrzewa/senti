@@ -1,7 +1,6 @@
 ﻿using Senti.Shared.Adapters.Storages;
 using Senti.Shared.Models;
 using Senti.Shared.Models.Quotes;
-using System.ComponentModel;
 using System.Text.Json;
 
 namespace Senti.Quotes.Core.Cache;
@@ -15,51 +14,87 @@ public class QuoteCacheRepository(
     private List<string> _stockList;
     private string _container;
 
-    //private async Task<IReadOnlyList<RawQuote>> ()
-    //{
-    //    if (_cacheContext.Data is not null)
-    //        return _cacheContext.Data;
-
-    //    await _cacheContext.Sync.WaitAsync();
-    //    await Refresh();
-    //    _cacheContext.Sync.Release();
-
-    //    return _cacheContext.Data;
-    //}
-
-    public async Task<IReadOnlyList<RawQuote>> GetByStock(string stock)
+    public async Task<IReadOnlyList<QuoteMini>> GetByStock(string stock)
     {
         if (_ctx.Data.ContainsKey(stock) is not true)
         {
-            return new List<RawQuote>();
+            return new List<QuoteMini>();
         }
 
         return _ctx.Data[stock];
     }
 
-    public async Task<IReadOnlyList<RawQuote>> Get(string stock, long from, long to)
+    public async Task<QuoteMini[]> Get(string stock, long from, long to)
     {
         if (_ctx.Data.ContainsKey(stock) is not true)
         {
-            return new List<RawQuote>();
+            return [];
         }
 
         var data = _ctx.Data[stock]
             .Where(x => x.t >= from && x.t <= to)
             .OrderBy(x => x.t)
-            .ToList();
+            .ToArray();
 
-        var len = data.Count();
-        var inc = len / 100;
+        return data;
+    }
 
-        var res = new List<RawQuote>();
-        for (int i = 0; i < len; i+=inc)
+    public async Task<int> Count(string stock)
+    {
+        if (_ctx.Data.ContainsKey(stock) is not true)
         {
-            res.Add(data[i]);
+            return 0;
         }
 
-        return res.ToArray();
+        return _ctx.Data[stock].Count();
     }
+
+    public async Task<int> MinUnix(string stock)
+    {
+        if (_ctx.Data.ContainsKey(stock) is not true)
+        {
+            return 0;
+        }
+
+        return _ctx.Data[stock].Min(x => x.t);
+    }
+
+    public async Task<int> MaxUnix(string stock)
+    {
+        if (_ctx.Data.ContainsKey(stock) is not true)
+        {
+            return 0;
+        }
+
+        return _ctx.Data[stock].Max(x => x.t);
+    }
+
+    public async Task<string> MinDate(string stock)
+    {
+        if (_ctx.Data.ContainsKey(stock) is not true)
+        {
+            return string.Empty;
+        }
+
+        var t = _ctx.Data[stock].Min(x => x.t);
+        var date = DateTimeOffset.FromUnixTimeSeconds(t);
+
+        return date.ToString("U");
+    }
+
+    public async Task<string> MaxDate(string stock)
+    {
+        if (_ctx.Data.ContainsKey(stock) is not true)
+        {
+            return string.Empty;
+        }
+
+        var t = _ctx.Data[stock].Max(x => x.t);
+        var date = DateTimeOffset.FromUnixTimeSeconds(t);
+
+        return date.ToString("U");
+    }
+
 
     public async Task Init()
     {
@@ -67,10 +102,10 @@ public class QuoteCacheRepository(
         _stockList = JsonSerializer.Deserialize<List<string>>(stockListJson);
         _container = Environment.GetEnvironmentVariable(Envars.Senti_Container_Quotes5m);
 
-        _ctx.Data = new Dictionary<string, List<RawQuote>>();
+        _ctx.Data = new Dictionary<string, List<QuoteMini>>();
         foreach (var stock in _stockList)
         {
-            _ctx.Data.Add(stock, new List<RawQuote>());
+            _ctx.Data.Add(stock, new List<QuoteMini>());
         }
 
     }
@@ -113,7 +148,9 @@ public class QuoteCacheRepository(
     private async Task AddToDataSafe(string stock, RawQuoteList quoteList)
     {
         await _ctx.Sync.WaitAsync();
-        _ctx.Data[stock].AddRange(quoteList.results);
+        _ctx.Data[stock]
+            .AddRange(quoteList.results
+            .Select(x => new QuoteMini(x)));
         _ctx.Sync.Release();
     }
 }
