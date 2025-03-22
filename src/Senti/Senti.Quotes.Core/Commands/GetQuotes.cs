@@ -21,5 +21,10 @@ namespace Senti.Quotes.Core.Commands
         {
             return await _repo.GetByStock(stock);
         }
+
+        public async Task<IReadOnlyList<RawQuote>> Get(string stock, long from, long to)
+        {
+            return await _repo.Get(stock, from, to);
+        }
     }
 }

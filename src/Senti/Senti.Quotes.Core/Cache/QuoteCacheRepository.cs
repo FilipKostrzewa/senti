@@ -37,6 +37,30 @@ public class QuoteCacheRepository(
         return _ctx.Data[stock];
     }
 
+    public async Task<IReadOnlyList<RawQuote>> Get(string stock, long from, long to)
+    {
+        if (_ctx.Data.ContainsKey(stock) is not true)
+        {
+            return new List<RawQuote>();
+        }
+
+        var data = _ctx.Data[stock]
+            .Where(x => x.t >= from && x.t <= to)
+            .OrderBy(x => x.t)
+            .ToList();
+
+        var len = data.Count();
+        var inc = len / 100;
+
+        var res = new List<RawQuote>();
+        for (int i = 0; i < len; i+=inc)
+        {
+            res.Add(data[i]);
+        }
+
+        return res.ToArray();
+    }
+
     public async Task Init()
     {
         var stockListJson = Environment.GetEnvironmentVariable(Envars.Senti_Stocks);

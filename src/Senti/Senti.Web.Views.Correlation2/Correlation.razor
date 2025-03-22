@@ -1,0 +1,118 @@
+@using System.Globalization
+@using Microsoft.Extensions.Configuration
+@using Radzen
+@using Radzen.Blazor
+@using Senti.Shared.Models
+@using Senti.Shared.Models.Quotes
+@using System.Text.Json
+
+@inject IConfiguration Configuration
+
+@page "/correlation-2"
+
+    <RadzenLabel Text="Select stock" Component="DropDownEnums" />
+
+    <RadzenDropDown 
+        TValue="string"
+        Data="@(stocks)" 
+        Value="@stock"
+        Change="@(async x => await OnStockChange(x))"
+        AllowFiltering="true" 
+        FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" 
+        Style="width: 100%; max-width: 400px;" 
+        Name="Stock">
+    </RadzenDropDown>
+
+    <RadzenLabel Text="Start" Component="RadzenDatePickerBindValue" />
+    <RadzenDatePicker 
+        TValue="DateTime"
+        Change="@(async x => await OnDateChangeStart(x))" 
+        Value="@(_from)"
+        Name="RadzenDatePickerBindValue" 
+    ShowCalendarWeek />
+    <RadzenLabel Text="End" Component="RadzenDatePickerBindValue" />
+    <RadzenDatePicker 
+        TValue="DateTime"
+        Change="@(async x => await OnDateChangeEnd(x))" 
+        Value="@(_to)"
+        Name="RadzenDatePickerBindValue" 
+        ShowCalendarWeek />
+
+
+
+
+    <CandlestickChart @ref="candleRef1" Quotes="_data" />
+
+
+
+
+@code {
+    RawQuote[] _data = new RawQuote[] { };
+    private string _getQuotesUrl;
+    CandlestickChart candleRef1;
+    private string _stock = "AAPL";
+    private DateTimeOffset _from = new DateTime(2025, 01, 05, 0, 0, 0, kind: DateTimeKind.Utc);
+    private DateTimeOffset _to = new DateTime(2025, 02, 05, 0, 0, 0, kind: DateTimeKind.Utc);
+
+    Radzen.DataGridGridLines GridLines = Radzen.DataGridGridLines.Default;
+    string stock = "AAPL";
+    List<string> stocks = new List<string> { "AAPL", "MSFT", "GOOGL", "NVDA", "AMZN", "TSLA", "MCD" };
+    List<RawQuote> quotes = new List<RawQuote>();
+    RawQuote[] quotesArr = [];
+
+    bool annotation = true;
+
+    public async Task OnStockChange(object args)
+    {
+        stock = args as string ?? "AAPL";
+
+        await Change();
+    }
+
+    public async Task OnDateChangeStart(object args)
+    {
+        _from = (args as DateTime?) ?? 
+            new DateTime(2025, 02, 05, 0, 0, 0, kind: DateTimeKind.Utc);
+
+        await Change();
+    }
+
+    public async Task OnDateChangeEnd(object args)
+    {
+        _to = (args as DateTime?) ?? 
+            new DateTime(2025, 02, 05, 0, 0, 0, kind: DateTimeKind.Utc);
+
+        await Change();
+
+    }
+
+    private async Task Change()
+    {
+        _getQuotesUrl = Configuration[Envars.Senti_GetQuotesUrl];
+        _getQuotesUrl = _getQuotesUrl.Replace("{{stock}}", stock);
+        _getQuotesUrl = _getQuotesUrl.Replace("{{from}}", _from.ToUnixTimeMilliseconds().ToString());
+        _getQuotesUrl = _getQuotesUrl.Replace("{{to}}", _to.ToUnixTimeMilliseconds().ToString());
+
+        var response = await new HttpClient().GetStreamAsync(_getQuotesUrl);
+        var options = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            };
+
+        var result = JsonSerializer.Deserialize<List<RawQuote>>(response, options);
+
+        _data = result
+        .OrderByDescending(x => x.t)
+        .ToArray();
+
+        await candleRef1.Redraw();
+
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Change();
+        await base.OnInitializedAsync();
+    }
+
+}

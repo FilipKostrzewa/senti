@@ -47,6 +47,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Senti.News.Api", "Senti.New
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Senti.Web.Views.Correlation", "Senti.Web.Views.Correlation\Senti.Web.Views.Correlation.csproj", "{7512BCA2-2288-4132-B99B-C37E1D7FC3CD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Senti.Web.Views.Correlation2", "Senti.Web.Views.Correlation2\Senti.Web.Views.Correlation2.csproj", "{8DD53F50-8FC2-4532-926D-3930138891A3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Senti.Web.Views.Correlation3", "Senti.Web.Views.Correlation3\Senti.Web.Views.Correlation3.csproj", "{0D3A2F02-C1B8-49F8-B38A-3DA67BA12341}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Senti.Web.Views.Correlation4", "Senti.Web.Views.Correlation4\Senti.Web.Views.Correlation4.csproj", "{9AF59FE8-592A-4950-BD5F-F5012DE670D1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -141,6 +147,18 @@ Global
 		{7512BCA2-2288-4132-B99B-C37E1D7FC3CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7512BCA2-2288-4132-B99B-C37E1D7FC3CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7512BCA2-2288-4132-B99B-C37E1D7FC3CD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8DD53F50-8FC2-4532-926D-3930138891A3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8DD53F50-8FC2-4532-926D-3930138891A3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8DD53F50-8FC2-4532-926D-3930138891A3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8DD53F50-8FC2-4532-926D-3930138891A3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0D3A2F02-C1B8-49F8-B38A-3DA67BA12341}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0D3A2F02-C1B8-49F8-B38A-3DA67BA12341}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0D3A2F02-C1B8-49F8-B38A-3DA67BA12341}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0D3A2F02-C1B8-49F8-B38A-3DA67BA12341}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9AF59FE8-592A-4950-BD5F-F5012DE670D1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9AF59FE8-592A-4950-BD5F-F5012DE670D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9AF59FE8-592A-4950-BD5F-F5012DE670D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9AF59FE8-592A-4950-BD5F-F5012DE670D1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

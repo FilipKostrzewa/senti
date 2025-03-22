@@ -32,6 +32,15 @@ app.MapGet("/quotes/{stock}", (GetQuotes getQuotes, string stock) =>
     return getQuotes.GetByStock(stock);
 });
 
+app.MapGet("/quotes", (HttpRequest request, GetQuotes getQuotes) =>
+{
+    var stock = request.Query["stock"];
+    var from = long.Parse(request.Query["from"]);
+    var to = long.Parse(request.Query["to"]);
+
+    return getQuotes.Get(stock, from, to);
+});
+
 using (var scope = app.Services.CreateScope())
 {
     var serviceProvider = scope.ServiceProvider;

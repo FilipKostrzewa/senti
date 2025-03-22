@@ -8,7 +8,7 @@
 
 @inject IConfiguration Configuration
 
-@page "/correlation-1"
+@page "/correlation-3"
 
 <div>
     <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Left" Gap="2rem" class="rz-p-sm-12">
@@ -45,25 +45,51 @@
 
 
     <RadzenStack class="rz-p-0 rz-p-md-6 rz-p-lg-12">
-        <RadzenCard Variant="Variant.Outlined">
-            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.5rem" Wrap="FlexWrap.Wrap">
-                <RadzenCheckBox @bind-Value="@annotation" Name="annotation"></RadzenCheckBox>
-                <RadzenLabel Text="Annotation" Component="annotation" />
-            </RadzenStack>
-        </RadzenCard>
 
-        <RadzenChart>
-            <RadzenLineSeries Smooth="true" Data="@_data" CategoryProperty="t" Title="2024" ValueProperty="c" RenderingOrder="1">
-                <RadzenSeriesAnnotation Visible="@annotation" TItem="RawQuote" Data="@_data[0]" OffsetY="-16" Text="Acquisition" />
-                <RadzenSeriesAnnotation Visible="@annotation" TItem="RawQuote" Data="@_data[1]" OffsetY="-16" Text="IPO" Fill="#ff504d" />
-                <RadzenMarkers MarkerType="MarkerType.Triangle" />
-            </RadzenLineSeries>
-            <RadzenCategoryAxis Padding="20" />
-            <RadzenValueAxis Formatter="@FormatAsUSD">
-                <RadzenGridLines Visible="true" />
-                <RadzenAxisTitle Text="Revenue in USD" />
-            </RadzenValueAxis>
-        </RadzenChart>
+        <canvas id="candlestickChart" width="1600" height="400"></canvas>
+        <script>
+            const canvas = document.getElementById("candlestickChart");
+            const ctx = canvas.getContext("2d");
+
+            const candleCount = 100;
+            const candleWidth = 20;
+            const candleSpacing = 10;
+            const baseY = 300;
+
+            function getRandomPrice(base) {
+                let open = base + Math.random() * 50 - 25;
+                let close = base + Math.random() * 50 - 25;
+                let high = Math.max(open, close) + Math.random() * 20;
+                let low = Math.min(open, close) - Math.random() * 20;
+                return { open, close, high, low };
+            }
+
+            function drawCandlestick(x, { open, close, high, low }) {
+                let color = close >= open ? "green" : "red";
+                ctx.strokeStyle = "black";
+                ctx.beginPath();
+                ctx.moveTo(x + candleWidth / 2, baseY - high);
+                ctx.lineTo(x + candleWidth / 2, baseY - low);
+                ctx.stroke();
+
+                ctx.fillStyle = color;
+                ctx.fillRect(x, baseY - Math.max(open, close), candleWidth, Math.abs(open - close));
+                ctx.strokeRect(x, baseY - Math.max(open, close), candleWidth, Math.abs(open - close));
+            }
+
+            function drawChart() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                let basePrice = 200;
+                for (let i = 0; i < candleCount; i++) {
+                    let x = i * (candleWidth + candleSpacing) + 20;
+                    let prices = getRandomPrice(basePrice);
+                    drawCandlestick(x, prices);
+                    basePrice = prices.close;
+                }
+            }
+
+            drawChart();
+        </script>
     </RadzenStack>
 
 </div>
