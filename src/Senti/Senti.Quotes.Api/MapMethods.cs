@@ -1,4 +1,4 @@
-﻿using Senti.Quotes.Core.Commands;
+﻿using Senti.Quotes.Core.Queries;
 using System.Reflection;
 
 //[assembly: AssemblyVersion("1.0.*")]

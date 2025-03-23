@@ -1,22 +1,23 @@
-﻿using Senti.News.Core.Cache;
-using Senti.Shared.Models.News;
+﻿using Senti.Quotes.Core.Cache;
+using Senti.Shared.Models.Quotes;
 
-namespace Senti.News.Core.Queries;
-public class GetArticles
+namespace Senti.Quotes.Core.Queries;
+
+public class GetQuotes
 {
-    private readonly ArticleCacheRepository _repo;
+    private readonly QuoteCacheRepository _repo;
 
-    public GetArticles(ArticleCacheRepository repo)
+    public GetQuotes(QuoteCacheRepository repo)
     {
         _repo = repo;
     }
 
-    public async Task<IReadOnlyList<ArticleMini>> GetByStock(string stock)
+    public async Task<IReadOnlyList<QuoteMini>> GetByStock(string stock)
     {
         return await _repo.GetByStock(stock);
     }
 
-    public async Task<ArticleMini[]> Get(string stock, long from, long to)
+    public async Task<QuoteMini[]> Get(string stock, long from, long to)
     {
         return await _repo.Get(stock, from, to);
     }
@@ -27,4 +28,3 @@ public class GetArticles
     public async Task<string> MinDate(string stock) => await _repo.MinDate(stock);
     public async Task<string> MaxDate(string stock) => await _repo.MaxDate(stock);
 }
-

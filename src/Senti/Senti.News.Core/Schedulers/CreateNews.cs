@@ -8,13 +8,11 @@ using System.Xml.Linq;
 namespace Senti.News.Core.Schedulers;
 public class CreateNews
 {
-    private readonly LogToStorage _logToStorage;
     private readonly StorageAdapter _storageAdapter;
     private readonly ArticleFactory _articleFactory;
 
-    public CreateNews(LogToStorage logToStorage, StorageAdapter storageAdapter, ArticleFactory articleFactory)
+    public CreateNews(StorageAdapter storageAdapter, ArticleFactory articleFactory)
     {
-        _logToStorage = logToStorage;
         _storageAdapter = storageAdapter;
         _articleFactory = articleFactory;
     }

@@ -1,0 +1,140 @@
+@using Microsoft.JSInterop
+@using Senti.Shared.Models.Quotes
+@using System.Text.Json
+@inherits ComponentBase
+@inject IJSRuntime JsRuntime
+
+@code {
+    [Parameter] public required QuoteMini[] Quotes { get; set; }
+    public ElementReference redrawButtonRef;
+
+    public async Task Redraw()
+    {
+        await JsRuntime.InvokeVoidAsync("ClickButton", redrawButtonRef);
+    }
+}
+
+<div style="width: 100%; overflow-x: auto;">
+    <canvas id="candlestickChart"></canvas>
+</div>
+
+<script>
+    function ClickButton(element) {
+        if (element) {
+            element.click();
+        }
+    }
+
+    function drawCandlestick(ctx, x, candleWidth, scaleY, yOffset, { open, close, high, low }) {
+
+        const candleColor = close >= open ? "green" : "red";
+
+        const highY = yOffset - high * scaleY;
+        const lowY = yOffset - low * scaleY;
+        const openY = yOffset - open * scaleY;
+        const closeY = yOffset - close * scaleY;
+
+        ctx.strokeStyle = "grey";
+        ctx.beginPath();
+        ctx.moveTo(x + candleWidth / 2, highY);
+        ctx.lineTo(x + candleWidth / 2, lowY);
+        ctx.stroke();
+
+        ctx.fillStyle = candleColor;
+        const rectY = Math.min(openY, closeY);
+        const rectHeight = Math.abs(openY - closeY);
+        ctx.fillRect(x, rectY, candleWidth, rectHeight);
+        ctx.strokeRect(x, rectY, candleWidth, rectHeight);
+    }
+
+    function unixToString(unixSeconds) {
+        const date = new Date(unixSeconds * 1000); // Convert to milliseconds
+
+        const day = date.getDate();
+        const month = date.toLocaleString('en-US', { month: 'short' }); // e.g., Jan
+        const hours = date.getHours().toString().padStart(2, '0');
+        const minutes = date.getMinutes().toString().padStart(2, '0');
+
+        return `${day} ${month} ${hours}:${minutes}`;
+    }
+
+    function drawChart() {
+        const hiddenElement = document.getElementById("quotesid");
+        const jsonData = hiddenElement.textContent.trim();
+        const arr = JSON.parse(jsonData);
+        const canvas = document.getElementById("candlestickChart");
+        const ctx = canvas.getContext("2d");
+
+        const candleCount = arr.length;
+        const candleSpacing = 4;
+        const candleWidth = 10;
+        const totalWidth = candleCount * (candleWidth + candleSpacing) + 20;
+
+        canvas.width = totalWidth;
+        canvas.height = 450;
+
+        const width = canvas.width;
+        const height = canvas.height;
+
+        let minPrice = Math.min(...arr.map(x => x.l));
+        let maxPrice = Math.max(...arr.map(x => x.h));
+        let priceRange = maxPrice - minPrice;
+
+        const yPadding = 40;
+        const labelHeight = 30;
+        const scaleY = (height - yPadding * 2 - labelHeight) / priceRange;
+        const yOffset = height - yPadding - labelHeight + minPrice * scaleY;
+
+        ctx.clearRect(0, 0, width, height);
+
+        ctx.font = "12px Arial";
+        ctx.textAlign = "center";
+        ctx.fillStyle = "#000";
+
+        for (let i = 0; i < candleCount; i++) 
+        {
+            const q = arr[i];
+            const x = i * (candleWidth + candleSpacing) + 10;
+
+            drawCandlestick(ctx, x, candleWidth, scaleY, yOffset, {
+                open: q.o,
+                close: q.c,
+                high: q.h,
+                low: q.l
+            });
+
+            const qDate = unixToString(q.t);
+
+            // Draw vertical label (rotated)
+            ctx.save();
+            ctx.translate(x + candleWidth / 2, height - 5); // move origin to below the candle
+            ctx.rotate(-Math.PI / 2); // rotate text 90 degrees counter-clockwise
+            ctx.textAlign = "left";
+            ctx.fillText(/*q.t.toString()*/qDate, 0, 0); // draw text at new origin
+            ctx.restore();
+        }
+
+        // for (let i = 0; i < candleCount; i++) {
+        //     const q = arr[i];
+        //     const x = i * (candleWidth + candleSpacing) + 10;
+
+        //     drawCandlestick(ctx, x, candleWidth, scaleY, yOffset, {
+        //         open: q.o,
+        //         close: q.c,
+        //         high: q.h,
+        //         low: q.l
+        //     });
+
+        //     // Draw vertical label below each candle
+        //     ctx.fillText(i.toString(), x + candleWidth / 2, height - 10); // You can replace `i` with `q.t` for timestamp
+        // }
+    }
+
+    window.addEventListener('resize', () => {
+        drawChart();
+    });
+</script>
+
+<input @ref="redrawButtonRef" id="redrawButton" type="button" value="clickme" onclick="drawChart();" hidden />
+<div id="quotesid" hidden>@(JsonSerializer.Serialize(Quotes))</div>
+

@@ -1,7 +1,7 @@
 using Scalar.AspNetCore;
 using Senti.Quotes.Api;
 using Senti.Quotes.Core.Cache;
-using Senti.Quotes.Core.Commands;
+using Senti.Quotes.Core.Queries;
 using Senti.Shared.Adapters.Storages;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -23,8 +23,9 @@ using (var scope = app.Services.CreateScope())
     var serviceProvider = scope.ServiceProvider;
     var repository = serviceProvider.GetRequiredService<QuoteCacheRepository>();
 
-    // Use the repository
     await repository.Init();
+
+    // todo: add background service
     repository.InitData();
 }
 app.Run();

@@ -9,6 +9,7 @@ public static class Envars
     public const string AzureLanguageAI_Key = nameof(AzureLanguageAI_Key);
 
     public const string Senti_Container_Quotes5m = nameof(Senti_Container_Quotes5m);
+    public const string Senti_Container_Articles = nameof(Senti_Container_Articles);
     public const string Senti_QuotesApi_Endpoint = nameof(Senti_QuotesApi_Endpoint);
     public const string Senti_QuotesApi_Key = nameof(Senti_QuotesApi_Key);
     public const string Senti_Stocks = nameof(Senti_Stocks);
