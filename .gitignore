@@ -373,4 +373,5 @@ src/CollaborationHub.App.Client/Properties/ServiceDependencies/*
 src/Senti/Senti.Azure.Functions/local.settings.json
 
 **/Properties/ServiceDependencies/*
+**/*settings.json
 
