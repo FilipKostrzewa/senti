@@ -120,7 +120,7 @@ public class ArticleCacheRepository
                 counter += await ReadDalyFile(stock, date);
 
                 if (counter > 5)
-                    return;
+                    break;
             }
         }
     }

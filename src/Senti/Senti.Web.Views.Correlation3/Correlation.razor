@@ -1,4 +1,5 @@
 @using System.Globalization
+@using ApexCharts
 @using Microsoft.Extensions.Configuration
 @using Radzen
 @using Radzen.Blazor
@@ -8,292 +9,226 @@
 
 @inject IConfiguration Configuration
 
-@page "/correlation-3"
+@page "/"
 
-<div>
-    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.Left" Gap="2rem" class="rz-p-sm-12">
-        <RadzenLabel Text="Select stock" Component="DropDownEnums" />
-        <RadzenDropDown 
-        TValue="string"
-        Data="@(stocks)" 
-        Value="@stock"
-        Change="@(async x => await OnStockChange(x))"
+<RadzenLabel Text="Select stock" Component="DropDownEnums" />
 
-        AllowFiltering="true" 
-        FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" 
-        Style="width: 100%; max-width: 400px;" 
-        Name="Stock">
-        </RadzenDropDown>
+<RadzenDropDown 
+TValue="string"
+Data="@(stocks)" 
+Value="@stock"
+Change="@(async x => await OnStockChange(x))"
+AllowFiltering="true" 
+FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" 
+Name="Stock" />
 
-        <RadzenLabel Text="Start" Component="RadzenDatePickerBindValue" />
-        <RadzenDatePicker 
-        TValue="DateTime"
-        Change="@(async x => await OnDateChangeStart(x))" 
-        Value="@(_from)"
-        Name="RadzenDatePickerBindValue" 
-        ShowCalendarWeek />
-        <RadzenLabel Text="End" Component="RadzenDatePickerBindValue" />
-        <RadzenDatePicker 
-        TValue="DateTime"
-        Change="@(async x => await OnDateChangeEnd(x))" 
-        Value="@(_to)"
-        Name="RadzenDatePickerBindValue" 
-        ShowCalendarWeek />
+<RadzenButton Click=@(async x => await OnChangeDay(-1)) Text="Prev Day" ButtonStyle="ButtonStyle.Info"  Style="margin-left:20px"/>
 
-    </RadzenStack>
+<RadzenDatePicker 
+TValue="DateTime"
+Change="@(async x => await OnDateChangeStart(x))" 
+Value="@(_from)"
+Name="RadzenDatePickerBindValue"  Style="margin-left:20px"
+ShowCalendarWeek />
+
+<RadzenButton Click=@(async x => await OnChangeDay(1)) Text="Next Day" ButtonStyle="ButtonStyle.Info"  Style="margin-left:20px"/>
+
+<RadzenLabel Text="Candles: " Component="RadzenDatePickerBindValue" Style="margin-left:20px"/>
+<RadzenButton Click=@(async x => await OnChangeTicks(6)) Text="6h" ButtonStyle="@but6" />
+<RadzenButton Click=@(async x => await OnChangeTicks(12)) Text="12h" ButtonStyle="@but12" />
+<RadzenButton Click=@(async x => await OnChangeTicks(36)) Text="36h" ButtonStyle="@but36" />
+<RadzenButton Click=@(async x => await OnChangeTicks(60)) Text="60h" ButtonStyle="@but60" />
+<RadzenButton Click=@(async x => await OnChangeTicks(84)) Text="84h" ButtonStyle="@but84" />
 
 
+@* <RadzenLabel Text="End " Component="RadzenDatePickerBindValue" Style="margin-left:10px" />
+<RadzenDatePicker 
+TValue="DateTime"
+Change="@(async x => await OnDateChangeEnd(x))" 
+Value="@(_to)"
+Name="RadzenDatePickerBindValue" 
+ShowCalendarWeek />
+ *@
 
-    <RadzenStack class="rz-p-0 rz-p-md-6 rz-p-lg-12">
 
-        <canvas id="candlestickChart" width="1600" height="400"></canvas>
-        <script>
-            const canvas = document.getElementById("candlestickChart");
-            const ctx = canvas.getContext("2d");
 
-            const candleCount = 100;
-            const candleWidth = 20;
-            const candleSpacing = 10;
-            const baseY = 300;
+<ApexChart @ref = "_chartRef" Height="500"
+TItem="QuoteMini"
+Title=""
+Options="_options"
+>
 
-            function getRandomPrice(base) {
-                let open = base + Math.random() * 50 - 25;
-                let close = base + Math.random() * 50 - 25;
-                let high = Math.max(open, close) + Math.random() * 20;
-                let low = Math.min(open, close) - Math.random() * 20;
-                return { open, close, high, low };
-            }
+    <ApexCandleSeries
+    Name="Price"
+    TItem="QuoteMini" 
+    Items="_data"
+    Open="e => 1m *e.o/100"
+    Close="e => 1m *e.c/100"
+    High="e => 1m*e.h/100"
+    Low="e => 1m*e.l/100"
+    XValue="e => e.t"
 
-            function drawCandlestick(x, { open, close, high, low }) {
-                let color = close >= open ? "green" : "red";
-                ctx.strokeStyle = "black";
-                ctx.beginPath();
-                ctx.moveTo(x + candleWidth / 2, baseY - high);
-                ctx.lineTo(x + candleWidth / 2, baseY - low);
-                ctx.stroke();
+    />
 
-                ctx.fillStyle = color;
-                ctx.fillRect(x, baseY - Math.max(open, close), candleWidth, Math.abs(open - close));
-                ctx.strokeRect(x, baseY - Math.max(open, close), candleWidth, Math.abs(open - close));
-            }
+</ApexChart>
 
-            function drawChart() {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                let basePrice = 200;
-                for (let i = 0; i < candleCount; i++) {
-                    let x = i * (candleWidth + candleSpacing) + 20;
-                    let prices = getRandomPrice(basePrice);
-                    drawCandlestick(x, prices);
-                    basePrice = prices.close;
-                }
-            }
 
-            drawChart();
-        </script>
-    </RadzenStack>
-
-</div>
 
 @code {
-    private string _getQuotesUrl;
-    private string _stock = "AAPL";
-    private DateTimeOffset _from = new DateTime(2025, 01, 05, 0, 0, 0, kind: DateTimeKind.Utc);
-    private DateTimeOffset _to = new DateTime(2025, 02, 05, 0, 0, 0, kind: DateTimeKind.Utc);
+    ButtonStyle but6 = ButtonStyle.Info;
+    ButtonStyle but12 = ButtonStyle.Info;
+    ButtonStyle but36 = ButtonStyle.Info;
+    ButtonStyle but60 = ButtonStyle.Info;
+    ButtonStyle but84 = ButtonStyle.Info;
 
-    Radzen.DataGridGridLines GridLines = Radzen.DataGridGridLines.Default;
+    private string _getQuotesUrl = string.Empty;
+    private ApexChart<QuoteMini> _chartRef;
+    private ApexChartOptions<QuoteMini> _options = new ApexChartOptions<QuoteMini>
+    {
+
+        DataLabels = new DataLabels
+        {
+            Formatter = @"function(value)
+            {
+                return `$ ${(value).toFixed(2)}`
+            }",
+
+        },
+
+        Xaxis = new XAxis
+        {
+            Title = new AxisTitle
+            {
+                Text = "Time",
+            },
+            Labels = new XAxisLabels
+            {
+                Formatter = @"function(value)
+                {
+                    const date = new Date(value * 1000);
+                    const day = date.getDate();
+                    const month = date.toLocaleString('en-US', { month: 'short' });
+                    const hours = date.getHours().toString().padStart(2, '0');
+                    const minutes = date.getMinutes().toString().padStart(2, '0');
+                    return `${day} ${month} ${hours}:${minutes}`;
+                }",
+            },
+        },
+        Yaxis = new List<YAxis>
+        {
+            new YAxis
+            {
+                Title = new AxisTitle{ Text = "Price" },
+                Labels = new YAxisLabels
+                {
+                    Formatter = @"function(value)
+                    {
+                        return `$ ${(value).toFixed(2)}`
+                    }",
+                },
+            },
+        },
+        Tooltip = new ApexCharts.Tooltip
+        {
+            Y = new TooltipY
+            {
+                Formatter = @"function(value)
+                {
+                    return `$ ${(value).toFixed(2)}`
+                }",
+            }
+        }
+
+    };
+
+
+    private int _hours = 12;
+    private List<string> stocks = new List<string> { "AAPL", "MSFT", "GOOGL", "NVDA", "AMZN", "TSLA", "MCD" };
+    private DateTimeOffset _from = new DateTime(2025, 01, 06, 9, 0, 0, kind: DateTimeKind.Utc);
+    private QuoteMini[] _data = [];
+
+
+
+
+    //Radzen.DataGridGridLines GridLines = Radzen.DataGridGridLines.Default;
     string stock = "AAPL";
-    List<string> stocks = new List<string> { "AAPL", "MSFT", "GOOGL", "NVDA", "AMZN", "TSLA", "MCD" };
-    List<RawQuote> quotes = new List<RawQuote>();
 
     bool annotation = true;
 
     public async Task OnStockChange(object args)
     {
-        stock = args.ToString();
-        //var url = Configuration[Envars.Senti_GetQuotesUrl];
-        //url = url.Replace("{{stock}}", stock);
-        var response = await new HttpClient().GetStreamAsync(_getQuotesUrl);
+        stock = args as string ?? "AAPL";
+        await Change();
+    }
 
-        var options = new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true
-            };
+    public async Task OnChangeDay(int days)
+    {
+        _from = _from.AddDays(days);
+        await Change();
+    }
 
-        var result = JsonSerializer.Deserialize<List<RawQuote>>(response, options);
-        quotes = result
-        .OrderByDescending(x => x.t)
-        .ToList();
+    public async Task OnChangeTicks(int hours)
+    {
+        but6 = ButtonStyle.Info;
+        but12 = ButtonStyle.Info;
+        but36 = ButtonStyle.Info;
+        but60 = ButtonStyle.Info;
+        but84 = ButtonStyle.Info;
+        var but = hours switch
+        {
+            6 => but6,
+            12 => but12,
+            36 => but36,
+            60 => but60,
+            84 => but84,
+        };
+        but = ButtonStyle.Danger;
+
+        _hours = hours;
+        await Change();
     }
 
     public async Task OnDateChangeStart(object args)
     {
-        _from = (args as DateTime?) ?? 
-            new DateTime(2025, 02, 05, 0, 0, 0, kind: DateTimeKind.Utc);
-
-        //SetChartData();
-        //SetNewsData();
-        //await Task.Delay(500);
-        //await _chart.NewPlot();
-    }
-
-    public async Task OnDateChangeEnd(object args)
-    {
-        _to = (args as DateTime?) ?? 
-            new DateTime(2025, 02, 05, 0, 0, 0, kind: DateTimeKind.Utc);
-
+        _from = (args as DateTime?) ?? new DateTime(2025, 01, 06, 9, 0, 0, kind: DateTimeKind.Utc);
         await Change();
-
-        //SetChartData();
-        //SetNewsData();
-        //await Task.Delay(500);
-        //await _chart.NewPlot();
     }
 
     private async Task Change()
     {
+        var from = _from.ToUnixTimeSeconds();
+        var to = from + (_hours * 60 * 60) + 13;
+        _getQuotesUrl = Configuration[Envars.Senti_GetQuotesUrl];
         _getQuotesUrl = _getQuotesUrl.Replace("{{stock}}", stock);
-        _getQuotesUrl = _getQuotesUrl.Replace("{{from}}", _from.ToUnixTimeMilliseconds().ToString());
-        _getQuotesUrl = _getQuotesUrl.Replace("{{to}}", _to.ToUnixTimeMilliseconds().ToString());
+        _getQuotesUrl = _getQuotesUrl.Replace("{{from}}", from.ToString());
+        _getQuotesUrl = _getQuotesUrl.Replace("{{to}}", to.ToString());
 
         var response = await new HttpClient().GetStreamAsync(_getQuotesUrl);
-
         var options = new JsonSerializerOptions
             {
                 PropertyNameCaseInsensitive = true
             };
 
-        var result = JsonSerializer.Deserialize<List<RawQuote>>(response, options);
+        var result = await JsonSerializer.DeserializeAsync<QuoteMini[]>(response, options);
+
         _data = result
-        .OrderByDescending(x => x.t)
-        .ToArray();
+            .OrderBy(x => x.t)
+            .Take(_hours * 12)
+            .ToArray();
 
-
+        await _chartRef.UpdateSeriesAsync(false);
+        StateHasChanged();
+        await _chartRef.UpdateSeriesAsync(false);
         StateHasChanged();
     }
 
     protected override async Task OnInitializedAsync()
     {
-        _getQuotesUrl = Configuration[Envars.Senti_GetQuotesUrl];
         await base.OnInitializedAsync();
-        //await OnStockChange(stock);
+
+        //await Task.Delay(5000);
+        await Change();
+        await Change();
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    class DataItem
-    {
-        public string Date { get; set; }
-        public double Revenue { get; set; }
-    }
-
-    string FormatAsUSD(object value)
-    {
-        return ((double)value).ToString("C0", CultureInfo.CreateSpecificCulture("en-US"));
-    }
-
-    RawQuote[] _data = new RawQuote[]
-    {
-        new RawQuote
-        {
-            c = 1,
-            h = 2,
-            l= 3,
-            o = 5,
-            t = 35345345345,
-        },
-        new RawQuote
-        {
-            c = 21,
-            h = 2,
-            l= 3,
-            o = 5,
-            t = 353455,
-        },
-    };
-
-
-    DataItem[] revenue2024 = new DataItem[] {
-        new DataItem
-        {
-            Date = "Jan",
-            Revenue = 234000
-        },
-        new DataItem
-        {
-            Date = "Feb",
-            Revenue = 269000
-        },
-        new DataItem
-        {
-            Date = "Mar",
-            Revenue = 233000
-        },
-        new DataItem
-        {
-            Date = "Apr",
-            Revenue = 244000
-        },
-        new DataItem
-        {
-            Date = "May",
-            Revenue = 214000
-        },
-        new DataItem
-        {
-            Date = "Jun",
-            Revenue = 253000
-        },
-        new DataItem
-        {
-            Date = "Jul",
-            Revenue = 274000
-        },
-        new DataItem
-        {
-            Date = "Aug",
-            Revenue = 284000
-        },
-        new DataItem
-        {
-            Date = "Sept",
-            Revenue = 273000
-        },
-        new DataItem
-        {
-            Date = "Oct",
-            Revenue = 282000
-        },
-        new DataItem
-        {
-            Date = "Nov",
-            Revenue = 289000
-        },
-        new DataItem
-        {
-            Date = "Dec",
-            Revenue = 294000
-        }
-    };
 }
