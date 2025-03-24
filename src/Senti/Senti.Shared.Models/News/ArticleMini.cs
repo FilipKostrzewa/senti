@@ -30,7 +30,7 @@ public class ArticleMini
         var date = GetDate(dateStr);
         var unixSec = date.ToUnixTimeSeconds();
 
-        return (int)(unixSec / 1000);
+        return (int)unixSec;
     }
 
     public DateTimeOffset GetDate(string dateStr)
@@ -57,6 +57,6 @@ public class ArticleMini
             }
         }
 
-        return DateTime.Now;
+        throw new ArgumentException($"Published: {dateStr}");
     }
 }

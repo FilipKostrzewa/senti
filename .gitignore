@@ -369,5 +369,8 @@ src/CollaborationHub.Azure.Functions/Properties/*Deploy.json
 
 # WebAssembly deploy
 src/CollaborationHub.App.Client/Properties/ServiceDependencies/*
-/src/Senti/Senti.Azure.Functions/local.settings.json
-/src/Senti/Senti.Azure.Functions/local.settings.json
+
+src/Senti/Senti.Azure.Functions/local.settings.json
+
+**/Properties/ServiceDependencies/*
+

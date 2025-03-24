@@ -23,7 +23,5 @@ using (var scope = app.Services.CreateScope())
 {
     var serviceProvider = scope.ServiceProvider;
     var repository = serviceProvider.GetRequiredService<ArticleCacheRepository>();
-
-    await repository.Init();
 }
 app.Run();

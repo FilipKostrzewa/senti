@@ -76,7 +76,7 @@ public class CreateNews
             StorageContainers.Rss, 
             RssFileNameFactory.Create(rss, stock));
 
-        var articles = await _articleFactory.Create(rssStream);
+        var articles = await _articleFactory.Create(rss, rssStream);
 
         return articles;
     }

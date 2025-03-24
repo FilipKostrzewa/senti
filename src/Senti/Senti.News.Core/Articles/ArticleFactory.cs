@@ -12,7 +12,7 @@ public class ArticleFactory
         _textSentimentFactory = textSentimentFactory;
     }
 
-    public async Task<List<Article>> Create(Stream rssStream)
+    public async Task<List<Article>> Create(string rss, Stream rssStream)
     {
         var xdoc = XDocument.Load(rssStream);
         var articles = xdoc.Descendants("item")
@@ -21,7 +21,8 @@ public class ArticleFactory
                 Title = x.Element("title")?.Value,
                 //Description = x.Element("description")?.Value,
                 Url = x.Element("link")?.Value,
-                PublishDateStr = x.Element("pubDate")?.Value
+                PublishDateStr = x.Element("pubDate")?.Value,
+                Source = rss,
             })
             .ToList();
 

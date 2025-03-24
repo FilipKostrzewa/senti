@@ -5,14 +5,21 @@ using System.Text.Json;
 
 namespace Senti.News.Core.Cache;
 
-public class ArticleCacheRepository(
-        ArticleCacheContext cacheContext,
-        StorageAdapter storageAdapter)
+public class ArticleCacheRepository
 {
-    private readonly ArticleCacheContext _ctx = cacheContext;
-    private readonly StorageAdapter _storageAdapter = storageAdapter;
+    private readonly ArticleCacheContext _ctx;
+    private readonly StorageAdapter _storageAdapter;
     private List<string> _stockList;
     private string _container;
+
+    public ArticleCacheRepository(ArticleCacheContext ctx, StorageAdapter storageAdapter)
+    {
+        _ctx = ctx;
+        _storageAdapter = storageAdapter;
+        var stockListJson = Environment.GetEnvironmentVariable(Envars.Senti_Stocks);
+        _stockList = JsonSerializer.Deserialize<List<string>>(stockListJson);
+        _container = Environment.GetEnvironmentVariable(Envars.Senti_Container_Articles);
+    }
 
     public async Task<IReadOnlyList<ArticleMini>> GetByStock(string stock)
     {
@@ -96,17 +103,8 @@ public class ArticleCacheRepository(
     }
 
 
-    public async Task Init()
+    private async Task Init()
     {
-        var stockListJson = Environment.GetEnvironmentVariable(Envars.Senti_Stocks);
-        _stockList = JsonSerializer.Deserialize<List<string>>(stockListJson);
-        _container = Environment.GetEnvironmentVariable(Envars.Senti_Container_Articles);
-
-        _ctx.Data = new Dictionary<string, List<ArticleMini>>();
-        foreach (var stock in _stockList)
-        {
-            _ctx.Data.Add(stock, new List<ArticleMini>());
-        }
 
     }
     public async Task ReadData()
@@ -129,7 +127,7 @@ public class ArticleCacheRepository(
 
     private async Task<int> ReadDalyFile(string stock, DateTime date)
     {
-        var fileName = $"{stock}-{date:yyMM}";
+        var fileName = $"{date:yyMMdd}-{stock}.json";
         if (await _storageAdapter.Exists(_container, fileName) is false)
             return 0;
 
