@@ -16,4 +16,5 @@ public static class Envars
     public const string Senti_Storage_ConnectionString = nameof(Senti_Storage_ConnectionString);
 
     public const string Senti_GetQuotesUrl = nameof(Senti_GetQuotesUrl);
+    public const string Senti_GetNewsUrl = nameof(Senti_GetNewsUrl);
 }

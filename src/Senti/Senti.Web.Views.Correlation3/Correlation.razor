@@ -4,6 +4,7 @@
 @using Radzen
 @using Radzen.Blazor
 @using Senti.Shared.Models
+@using Senti.Shared.Models.News
 @using Senti.Shared.Models.Quotes
 @using System.Text.Json
 
@@ -58,30 +59,64 @@ Title=""
 Options="_options"
 >
 
-    <ApexCandleSeries
-    Name="Price"
-    TItem="QuoteMini" 
-    Items="_data"
-    Open="e => 1m *e.o/100"
-    Close="e => 1m *e.c/100"
-    High="e => 1m*e.h/100"
-    Low="e => 1m*e.l/100"
-    XValue="e => e.t"
 
-    />
+    <ApexCandleSeries
+                    Name="Price"
+                    TItem="QuoteMini" 
+                    Items="_quoteData"
+                    Open="e => 1m *e.o/100"
+                    Close="e => 1m *e.c/100"
+                    High="e => 1m*e.h/100"
+                    Low="e => 1m*e.l/100"
+                    XValue="e => e.t" />
+
+</ApexChart>
+<ApexChart  Height="200" TItem="ArticleMini" Title="Sentiment" 
+Options="_options2"
+>
+
+    <ApexPointSeries TItem="ArticleMini"
+                     Items="_newsData"
+                     Name="Sentiment"
+                     SeriesType="SeriesType.Line"
+                     XValue="e => e.Published"
+                     YValue="e => (decimal)e.SentimentPositive"
+                     ShowDataLabels />
+
+
 
 </ApexChart>
 
 
+<RadzenDataGrid 
+    Data="@_newsData" 
+    GridLines="@GridLines" 
+    AllowPaging="true" 
+    AllowSorting="true"
+    
+    AllowColumnResize="true">
+    
+    <Columns>
+        <RadzenDataGridColumn Width="200px" Property="Published" Title="Publish Date" />
+        <RadzenDataGridColumn Property="Title" Title="Title" />
+        <RadzenDataGridColumn Width="100px" Property="SentimentPositive" Title="Positive" />
+        <RadzenDataGridColumn Width="100px" Property="SentimentNeutral" Title="Neutral" />
+        <RadzenDataGridColumn Width="100px" Property="SentimentNegative" Title="Negative" />
+    </Columns>
+</RadzenDataGrid>
+
+
 
 @code {
+
+    Radzen.DataGridGridLines GridLines = Radzen.DataGridGridLines.Default;
+
     ButtonStyle but6 = ButtonStyle.Info;
     ButtonStyle but12 = ButtonStyle.Info;
     ButtonStyle but36 = ButtonStyle.Info;
     ButtonStyle but60 = ButtonStyle.Info;
     ButtonStyle but84 = ButtonStyle.Info;
 
-    private string _getQuotesUrl = string.Empty;
     private ApexChart<QuoteMini> _chartRef;
     private ApexChartOptions<QuoteMini> _options = new ApexChartOptions<QuoteMini>
     {
@@ -140,12 +175,70 @@ Options="_options"
         }
 
     };
+    private ApexChartOptions<ArticleMini> _options2 = new ApexChartOptions<ArticleMini>
+    {
+
+        DataLabels = new DataLabels
+        {
+            Formatter = @"function(value)
+            {
+                return `$ ${(value).toFixed(2)}`
+            }",
+
+        },
+
+        Xaxis = new XAxis
+        {
+            Title = new AxisTitle
+            {
+                Text = "Time",
+            },
+            Labels = new XAxisLabels
+            {
+                Formatter = @"function(value)
+                {
+                    const date = new Date(value * 1000);
+                    const day = date.getDate();
+                    const month = date.toLocaleString('en-US', { month: 'short' });
+                    const hours = date.getHours().toString().padStart(2, '0');
+                    const minutes = date.getMinutes().toString().padStart(2, '0');
+                    return `${day} ${month} ${hours}:${minutes}`;
+                }",
+            },
+        },
+        Yaxis = new List<YAxis>
+        {
+            new YAxis
+            {
+                Title = new AxisTitle{ Text = "Sentiment" },
+                Labels = new YAxisLabels
+                {
+                    Formatter = @"function(value)
+                    {
+                        return `$ ${(value).toFixed(2)}`
+                    }",
+                },
+            },
+        },
+        Tooltip = new ApexCharts.Tooltip
+        {
+            Y = new TooltipY
+            {
+                Formatter = @"function(value)
+                {
+                    return `$ ${(value).toFixed(2)}`
+                }",
+            }
+        }
+
+    };
 
 
     private int _hours = 12;
     private List<string> stocks = new List<string> { "AAPL", "MSFT", "GOOGL", "NVDA", "AMZN", "TSLA", "MCD" };
-    private DateTimeOffset _from = new DateTime(2025, 01, 06, 9, 0, 0, kind: DateTimeKind.Utc);
-    private QuoteMini[] _data = [];
+    private DateTimeOffset _from = new DateTime(2025, 02, 18, 9, 0, 0, kind: DateTimeKind.Utc);
+    private QuoteMini[] _quoteData = [];
+    private ArticleMini[] _newsData = [];
 
 
 
@@ -190,36 +283,73 @@ Options="_options"
 
     public async Task OnDateChangeStart(object args)
     {
-        _from = (args as DateTime?) ?? new DateTime(2025, 01, 06, 9, 0, 0, kind: DateTimeKind.Utc);
+        _from = (args as DateTime?) ?? new DateTime(2025, 02, 18, 9, 0, 0, kind: DateTimeKind.Utc);
         await Change();
     }
 
     private async Task Change()
     {
+        var quoteTask = ChangeQuotes();
+        var newsTask = ChangeNews();
+
+        await Task.WhenAll([quoteTask, newsTask]);
+
+        await _chartRef.UpdateSeriesAsync(false);
+        StateHasChanged();
+        await _chartRef.UpdateSeriesAsync(false);
+        StateHasChanged();
+    }
+
+    private async Task ChangeQuotes()
+    {
         var from = _from.ToUnixTimeSeconds();
         var to = from + (_hours * 60 * 60) + 13;
-        _getQuotesUrl = Configuration[Envars.Senti_GetQuotesUrl];
-        _getQuotesUrl = _getQuotesUrl.Replace("{{stock}}", stock);
-        _getQuotesUrl = _getQuotesUrl.Replace("{{from}}", from.ToString());
-        _getQuotesUrl = _getQuotesUrl.Replace("{{to}}", to.ToString());
 
-        var response = await new HttpClient().GetStreamAsync(_getQuotesUrl);
+        var getQuotesUrl = Configuration[Envars.Senti_GetQuotesUrl];
+        getQuotesUrl = getQuotesUrl.Replace("{{stock}}", stock);
+        getQuotesUrl = getQuotesUrl.Replace("{{from}}", from.ToString());
+        getQuotesUrl = getQuotesUrl.Replace("{{to}}", to.ToString());
+
+        var getNewsUrl = Configuration[Envars.Senti_GetNewsUrl];
+        getNewsUrl = getNewsUrl.Replace("{{stock}}", stock);
+        getNewsUrl = getNewsUrl.Replace("{{from}}", from.ToString());
+        getNewsUrl = getNewsUrl.Replace("{{to}}", to.ToString());
+
+        var response = await new HttpClient().GetStreamAsync(getQuotesUrl);
         var options = new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true
-            };
+        {
+            PropertyNameCaseInsensitive = true
+        };
 
         var result = await JsonSerializer.DeserializeAsync<QuoteMini[]>(response, options);
 
-        _data = result
+        _quoteData = result
             .OrderBy(x => x.t)
             .Take(_hours * 12)
             .ToArray();
+    }
 
-        await _chartRef.UpdateSeriesAsync(false);
-        StateHasChanged();
-        await _chartRef.UpdateSeriesAsync(false);
-        StateHasChanged();
+    private async Task ChangeNews()
+    {
+        var from = _from.ToUnixTimeSeconds();
+        var to = from + (_hours * 60 * 60) + 13;
+
+        var getNewsUrl = Configuration[Envars.Senti_GetNewsUrl];
+        getNewsUrl = getNewsUrl.Replace("{{stock}}", stock);
+        getNewsUrl = getNewsUrl.Replace("{{from}}", from.ToString());
+        getNewsUrl = getNewsUrl.Replace("{{to}}", to.ToString());
+
+        var response = await new HttpClient().GetStreamAsync(getNewsUrl);
+        var options = new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true
+        };
+
+        var result = await JsonSerializer.DeserializeAsync<ArticleMini[]>(response, options);
+
+        _newsData = result
+            .OrderBy(x => x.Published)
+            .ToArray();
     }
 
     protected override async Task OnInitializedAsync()

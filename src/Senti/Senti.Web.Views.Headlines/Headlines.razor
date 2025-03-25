@@ -63,9 +63,9 @@
         var response = await new HttpClient().GetStreamAsync(fileUrl);
 
         var options = new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true
-            };
+        {
+            PropertyNameCaseInsensitive = true
+        };
 
         var result = JsonSerializer.Deserialize<List<Article>>(response, options);
         articles = result.OrderByDescending(x => x.PublishDate);
