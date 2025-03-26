@@ -53,7 +53,7 @@ ShowCalendarWeek />
 
 
 
-<ApexChart @ref = "_chartRef" Height="500"
+<ApexChart @ref="_quoteChartRef" Height="500"
 TItem="QuoteMini"
 Title=""
 Options="_options"
@@ -61,41 +61,69 @@ Options="_options"
 
 
     <ApexCandleSeries
-                    Name="Price"
-                    TItem="QuoteMini" 
-                    Items="_quoteData"
-                    Open="e => 1m *e.o/100"
-                    Close="e => 1m *e.c/100"
-                    High="e => 1m*e.h/100"
-                    Low="e => 1m*e.l/100"
-                    XValue="e => e.t" />
+    Name="Price"
+    TItem="QuoteMini" 
+    Items="_quoteData"
+    Open="e => 1m *e.o/100"
+    Close="e => 1m *e.c/100"
+    High="e => 1m*e.h/100"
+    Low="e => 1m*e.l/100"
+    XValue="e => e.t" />
+
+    <ApexCandleSeries
+    Color="grey"
+
+
+    Name="Forecast"
+    TItem="QuoteMini" 
+    Items="_quoteData"
+    Open="e => 1m *e.o/99"
+    Close="e => 1m *e.c/99"
+    High="e => 1m*e.h/99"
+    Low="e => 1m*e.l/99"
+    XValue="e => e.t" />
 
 </ApexChart>
-<ApexChart  Height="200" TItem="ArticleMini" Title="Sentiment" 
-Options="_options2"
+
+<ApexChart @ref="_newsChartRef" Height="500" TItem="ArticleMini" 
+Title="Sentiment" 
+Options="_newsOptions"
 >
 
     <ApexPointSeries TItem="ArticleMini"
-                     Items="_newsData"
-                     Name="Sentiment"
-                     SeriesType="SeriesType.Line"
-                     XValue="e => e.Published"
-                     YValue="e => (decimal)e.SentimentPositive"
-                     ShowDataLabels />
+    Items="_newsData"
+    Name="Positive Sentiment"
+    SeriesType="SeriesType.Area"
+    XValue="e => e.Published"
+    YValue="e => (decimal)e.SentimentPositive"
+    Color="green"
+    ShowDataLabels />
 
+    <ApexPointSeries TItem="ArticleMini"
+    Items="_newsData"
+    Name="Negative Sentiment"
+    SeriesType="SeriesType.Area"
+    XValue="e => e.Published"
+    YValue="e => (decimal)e.SentimentNegative * (-1)"
+    Color="red"
+    ShowDataLabels />
 
 
 </ApexChart>
 
+<RadzenLabel Text="Positive Sentiment Correlation" />
+<RadzenTextBox @bind-Value="@corrPositive" />
+<RadzenLabel Text="Negative Sentiment Correlation" />
+<RadzenTextBox @bind-Value="@corrNegative" />
 
 <RadzenDataGrid 
-    Data="@_newsData" 
-    GridLines="@GridLines" 
-    AllowPaging="true" 
-    AllowSorting="true"
-    
-    AllowColumnResize="true">
-    
+Data="@_newsData" 
+GridLines="@GridLines" 
+AllowPaging="true" 
+AllowSorting="true"
+
+AllowColumnResize="true">
+
     <Columns>
         <RadzenDataGridColumn Width="200px" Property="Published" Title="Publish Date" />
         <RadzenDataGridColumn Property="Title" Title="Title" />
@@ -108,6 +136,8 @@ Options="_options2"
 
 
 @code {
+    string corrPositive = string.Empty;
+    string corrNegative = string.Empty;
 
     Radzen.DataGridGridLines GridLines = Radzen.DataGridGridLines.Default;
 
@@ -117,7 +147,8 @@ Options="_options2"
     ButtonStyle but60 = ButtonStyle.Info;
     ButtonStyle but84 = ButtonStyle.Info;
 
-    private ApexChart<QuoteMini> _chartRef;
+    private ApexChart<QuoteMini> _quoteChartRef;
+    private ApexChart<ArticleMini> _newsChartRef;
     private ApexChartOptions<QuoteMini> _options = new ApexChartOptions<QuoteMini>
     {
 
@@ -175,8 +206,12 @@ Options="_options2"
         }
 
     };
-    private ApexChartOptions<ArticleMini> _options2 = new ApexChartOptions<ArticleMini>
+    private ApexChartOptions<ArticleMini> _newsOptions = new ApexChartOptions<ArticleMini>
     {
+        Colors = new List<string>
+        {
+          "blue", "green" , "grey" 
+        },
 
         DataLabels = new DataLabels
         {
@@ -215,7 +250,7 @@ Options="_options2"
                 {
                     Formatter = @"function(value)
                     {
-                        return `$ ${(value).toFixed(2)}`
+                        return `${(value).toFixed(2)}`
                     }",
                 },
             },
@@ -226,7 +261,7 @@ Options="_options2"
             {
                 Formatter = @"function(value)
                 {
-                    return `$ ${(value).toFixed(2)}`
+                    return `${(value).toFixed(2)}`
                 }",
             }
         }
@@ -294,9 +329,19 @@ Options="_options2"
 
         await Task.WhenAll([quoteTask, newsTask]);
 
-        await _chartRef.UpdateSeriesAsync(false);
+        var sentimentPositive = _newsData.Select(x => x.SentimentPositive).ToArray();
+        double[] sentimentNegative = _newsData.Select(x => x.SentimentNegative).ToArray();
+        int[] close = _quoteData.Select(x => x.c).ToArray();
+        corrPositive = $"{CorrelationCalculator.Calculate(close, sentimentPositive)}";
+        corrNegative = $"{CorrelationCalculator.Calculate(close, sentimentNegative)}";
+
+        await _quoteChartRef.UpdateSeriesAsync(false);
         StateHasChanged();
-        await _chartRef.UpdateSeriesAsync(false);
+        await _quoteChartRef.UpdateSeriesAsync(false);
+        StateHasChanged();
+        await _newsChartRef.UpdateSeriesAsync(false);
+        StateHasChanged();
+        await _newsChartRef.UpdateSeriesAsync(false);
         StateHasChanged();
     }
 
