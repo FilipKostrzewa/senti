@@ -34,7 +34,7 @@ ShowCalendarWeek />
 
 <RadzenButton Click=@(async x => await OnChangeDay(1)) Text="Next Day" ButtonStyle="ButtonStyle.Info"  Style="margin-left:20px"/>
 
-<RadzenLabel Text="Candles: " Component="RadzenDatePickerBindValue" Style="margin-left:20px"/>
+<RadzenLabel Text="Time span: " Component="RadzenDatePickerBindValue" Style="margin-left:20px"/>
 <RadzenButton Click=@(async x => await OnChangeTicks(6)) Text="6h" ButtonStyle="@but6" />
 <RadzenButton Click=@(async x => await OnChangeTicks(12)) Text="12h" ButtonStyle="@but12" />
 <RadzenButton Click=@(async x => await OnChangeTicks(36)) Text="36h" ButtonStyle="@but36" />
@@ -70,20 +70,29 @@ Options="_options"
     Low="e => 1m*e.l/100"
     XValue="e => e.t" />
 
-    <ApexCandleSeries
-    Color="grey"
-
-
+    <ApexPointSeries TItem="QuoteMini"
+    Items="_forecast"
     Name="Forecast"
-    TItem="QuoteMini" 
-    Items="_quoteData"
-    Open="e => 1m *e.o/99"
-    Close="e => 1m *e.c/99"
-    High="e => 1m*e.h/99"
-    Low="e => 1m*e.l/99"
-    XValue="e => e.t" />
+    SeriesType="SeriesType.Line"
+    XValue="e => e.t"
+    YValue="e => (decimal)e.c / 100"
+    Color="grey"
+    ShowDataLabels />
 
 </ApexChart>
+
+<RadzenLabel Text="Sentiment Correlations: " />
+<br/>
+<RadzenLabel Text="Positive:" />
+<RadzenTextBox @bind-Value="@corrPositive" />
+<RadzenLabel Text="Neutral" Style="margin-left:20px"/>
+<RadzenTextBox @bind-Value="@corrNeutral" />
+<RadzenLabel Text="Negative" Style="margin-left:20px"/>
+<RadzenTextBox @bind-Value="@corrNegative" />
+<RadzenLabel Text="Positive & Negative" Style="margin-left:20px"/>
+<RadzenTextBox @bind-Value="@corrDiff" />
+<RadzenLabel Text="Forecast" Style="margin-left:20px"/>
+<RadzenTextBox @bind-Value="@corrForecast" />
 
 <ApexChart @ref="_newsChartRef" Height="500" TItem="ArticleMini" 
 Title="Sentiment" 
@@ -111,10 +120,6 @@ Options="_newsOptions"
 
 </ApexChart>
 
-<RadzenLabel Text="Positive Sentiment Correlation" />
-<RadzenTextBox @bind-Value="@corrPositive" />
-<RadzenLabel Text="Negative Sentiment Correlation" />
-<RadzenTextBox @bind-Value="@corrNegative" />
 
 <RadzenDataGrid 
 Data="@_newsData" 
@@ -136,8 +141,13 @@ AllowColumnResize="true">
 
 
 @code {
+    //record Forecast(int Close, int Time);
+
     string corrPositive = string.Empty;
+    string corrNeutral = string.Empty;
     string corrNegative = string.Empty;
+    string corrDiff = string.Empty;
+    string corrForecast = string.Empty;
 
     Radzen.DataGridGridLines GridLines = Radzen.DataGridGridLines.Default;
 
@@ -268,15 +278,12 @@ AllowColumnResize="true">
 
     };
 
-
     private int _hours = 12;
     private List<string> stocks = new List<string> { "AAPL", "MSFT", "GOOGL", "NVDA", "AMZN", "TSLA", "MCD" };
-    private DateTimeOffset _from = new DateTime(2025, 02, 18, 9, 0, 0, kind: DateTimeKind.Utc);
+    private DateTimeOffset _from = new DateTime(2025, 02, 19, 9, 0, 0, kind: DateTimeKind.Utc);
     private QuoteMini[] _quoteData = [];
     private ArticleMini[] _newsData = [];
-
-
-
+    private QuoteMini[] _forecast = [];
 
     //Radzen.DataGridGridLines GridLines = Radzen.DataGridGridLines.Default;
     string stock = "AAPL";
@@ -318,7 +325,7 @@ AllowColumnResize="true">
 
     public async Task OnDateChangeStart(object args)
     {
-        _from = (args as DateTime?) ?? new DateTime(2025, 02, 18, 9, 0, 0, kind: DateTimeKind.Utc);
+        _from = (args as DateTime?) ?? new DateTime(2025, 02, 19, 9, 0, 0, kind: DateTimeKind.Utc);
         await Change();
     }
 
@@ -330,10 +337,16 @@ AllowColumnResize="true">
         await Task.WhenAll([quoteTask, newsTask]);
 
         var sentimentPositive = _newsData.Select(x => x.SentimentPositive).ToArray();
-        double[] sentimentNegative = _newsData.Select(x => x.SentimentNegative).ToArray();
+        var sentimentNeutral = _newsData.Select(x => x.SentimentNeutral).ToArray();
+        var sentimentNegative = _newsData.Select(x => x.SentimentNegative).ToArray();
+        var sentimentDiff = _newsData.Select(x => x.SentimentPositive - x.SentimentNegative).ToArray();
+        var forecast = _forecast.Select(x => x.c).ToArray();
+
         int[] close = _quoteData.Select(x => x.c).ToArray();
         corrPositive = $"{CorrelationCalculator.Calculate(close, sentimentPositive)}";
+        corrNeutral = $"{CorrelationCalculator.Calculate(close, sentimentNeutral)}";
         corrNegative = $"{CorrelationCalculator.Calculate(close, sentimentNegative)}";
+        corrDiff = $"{CorrelationCalculator.Calculate(close, sentimentDiff)}";
 
         await _quoteChartRef.UpdateSeriesAsync(false);
         StateHasChanged();
